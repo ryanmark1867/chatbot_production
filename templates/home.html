@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Movie Molly webview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main2.css') }}">
+  </head>
+<body>
+<script type="text/javascript">
+<!-- Include the Messenger Extensions JS SDK per https://developers.facebook.com/docs/messenger-platform/webview/extensions -->
+(function(d, s, id){
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/messenger.Extensions.js";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'Messenger'));
+</script>
+<!-- attempt to set up REST call to Rasa server directly from web page
+<script type="text/javascript">
+const userAction = async () => {
+  const response = await fetch(api_endpoint, {
+    method: 'POST',
+	// body: myBody,
+    body: 'list movies starring Stewart Granger', // string or object
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  const myJson = await response.json(); //extract JSON from the http response
+  // do something with myJson
+}
+</script>
+-->
+<!-- code to control closing the page on click per https://stackoverflow.com/questions/688196/how-to-use-a-link-to-call-javascript-->
+<script type="text/javascript">
+        // Wait for the page to load first
+        window.onload = function() {
+
+          //Get a reference to the link on the page
+          // with an id of "mylink"
+          var a = document.getElementById("mylink");
+		  var b = document.getElementById("mylink2");
+		  var c = document.getElementById("mylink3");
+
+          //Set code to run when the link is clicked
+          // by assigning a function to "onclick"
+          a.onclick = function() {
+            MessengerExtensions.requestCloseBrowser(function success() {}, function failure(err) {
+			alert('error closing the window: ' + err); // error closing the window:
+			console.log(err); // doesn't print
+			window.close();
+			});
+            return false;
+          }
+		  
+          b.onclick = function() {
+            MessengerExtensions.requestCloseBrowser(function success() {}, function failure(err) {
+			alert('error closing the window: ' + err); // error closing the window:
+			console.log(err); // doesn't print
+			window.close();
+			});
+            return false;
+          }
+
+          c.onclick = function() {
+            MessengerExtensions.requestCloseBrowser(function success() {}, function failure(err) {
+			alert('error closing the window: ' + err); // error closing the window:
+			console.log(err); // doesn't print
+			window.close();
+			});
+            return false;
+          }
+        }
+</script>
+<div class="home">
+<h1> {{ title.titlename }} ({{year.yearname}})</h1>
+<p><b>Run Time:</b> {{ run_time.run_timename }}</p>
+<img style="padding: 0 15px; float: left;" src={{poster_url.poster_urlname}} alt={{title.titlename}} width="342" height="513" border="0">
+<p style="margin-top: 20px;"> </p>
+<p> <b>Rating:</b> 
+<p> <b>Genres:</b> 
+{% for genre in genre_list %}
+<!--<a href="javascript:closeWindow();">{{ genre.genre_listname}}</a>-->
+<!--<button type="submit" onclick="UserAction()">{{ genre.genre_listname}}</button>-->
+<a id="mylink" href="{{url_for('homepage', type=genre.genre_listname,category = 'genre')}}">{{ genre.genre_listname}}</a>{% if not loop.last %}, {% endif %}
+{% endfor %}
+</p>
+<p> <b>Directors:</b> 
+{% for director in director_list %}
+<a id="mylink2" href="{{url_for('homepage', type=director.director_listname,category = 'director')}}">{{ director.director_listname}}</a>{% if not loop.last %}, {% endif %} 
+{% endfor %}
+</p>
+<p> <b>Stars:</b> 
+{% for actor in actor_list %}
+<a id="mylink3" href="{{url_for('homepage', type=actor.actor_listname,category = 'actor')}}">{{ actor.actor_listname}}</a>{% if not loop.last %}, {% endif %}
+{% endfor %}
+</p>
+<p></p>
+<p>{{ plot.plotname }}</p>
+</div>
+</body>
+</html>

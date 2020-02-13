@@ -1,0 +1,55 @@
+<!--
+This HTML template is for MovieBot summaries.  
+
+Variables that get passed in are:
+	movie-title  	string
+    movie-year		string
+    movie-rating	float
+    movie-poster	image
+    movie-length	int
+    movie-genres	string (array)
+    movie-director	string
+    movie-stars		string (array)
+    movie-plot		string
+
+-->
+
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>Test data:  
+	<?php
+		echo htmlspecialchars($_GET["test"])
+	?>
+
+<table>
+
+	<tr>
+    	<td valign='top' 
+        ><b>Blade Runner  </b>(1982)</td>
+        <td>rating <br/><br/></td>
+  	</tr>
+    <tr>
+    	<td valign='top'>
+        	<img src="http://image.tmdb.org/t/p/w185/p64TtbZGCElxQHpAMWmDHkWJlH2.jpg" >
+        </td>
+        <td>1 hr, 57 min <br/>
+         	Science Fiction, Drama, Thriller <br/><br/>
+         <b>Director</b>: <u>Ridley Scott</u><br/>
+         <b>Stars</b>: 
+         	<u>Harrison Ford again! cmon man</u>, 
+            <u>Rutger Hauer</u>, 
+            <u>Sean Young</u>, 
+            <u>Edward James Olmos</u>, 
+            <u>M. Emmet Walsh</u>
+            <br>
+            (<u>full cast and crew</u>)<br/><br/>
+            In the smog-choked dystopian Los Angeles of 2019, blade runner Rick Deckard is called out of retirement to terminate a quartet of replicants who have escaped to Earth seeking their creator for a way to extend their short life spans.
+        </td> 
+  	</tr>
+
+</table>
+
+</body>
+</html>

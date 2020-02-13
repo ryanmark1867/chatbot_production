@@ -1,0 +1,184 @@
+intents:
+- greet
+- goodbye
+- affirm
+- deny
+- mood_great
+- mood_unhappy
+- get_file_columns
+- get_file_row
+- get_last_n_rows
+- get_first_n_rows
+- condition_by_year
+- condition_by_movie
+- condition_by_movie_ordered
+- condition_by_media
+- welcome_page
+- list_category
+- show_details
+
+entities:
+- file_name
+- row_number
+- row_range
+- ranked_col
+- top_bottom
+- movie
+- year
+- revenue
+- plot
+- budget
+- language
+- keyword
+- genre
+- cast_name
+- character
+- Director
+- rank_axis
+- media
+- category
+slots:
+  ascending_descending:
+    type: categorical
+    initial_value: descending
+    values:
+    - ascending
+    - descending
+  budget:
+    type: text
+  cast_name:
+    type: list
+  character:
+    type: text
+  condition_col:
+    type: list
+  category:
+    type: text
+  detail_mode:
+    type: categorical
+    initial_value: text_list
+    values:
+    - text_list
+    - details
+  condition_operator:
+    type: categorical
+    initial_value: equals
+    values:
+    - equals
+    - less than
+    - greater than
+  condition_val:
+    type: list
+  Director:
+    type: text
+  Producer:
+    type: text
+  Editor:
+    type: text
+  Costume_Design:
+    type: text
+  name:
+    type: text
+  surname:
+    type: text
+  file_name:
+    type: text
+  genre:
+    type: text
+  keyword:
+    type: text
+  language:
+    type: categorical
+    initial_value: English
+    values:
+    - french
+    - german
+    - english
+    - italian
+    - spanish
+    - dutch
+    - arabic
+    - chinese
+    - russian
+    - japanese
+    - korean
+    - portuguese
+    - swedish
+    - czech
+    - romanian
+  media:
+    type: text
+  movie:
+    type: text
+  original_language:
+    type: text
+  plot:
+    type: text
+  rank_axis:
+    type: text
+  ranked_col:
+    type: list
+  revenue:
+    type: text
+  persistance:
+    type: text
+    initial_value: False    
+  row_number:
+    type: text
+    initial_value: 5
+  row_range:
+    type: text
+  first_name:
+    type: text
+  last_name:
+    type: text    
+  sort_col:
+    type: text
+    initial_value: popularity
+  top_bottom:
+    type: categorical
+    initial_value: top
+    values:
+    - top
+    - bottom
+  year:
+    type: text
+templates:
+  utter_greet:
+  - text: Hey! How are you?
+  utter_cheer_up:
+  - text: 'Here is something to cheer you up:'
+    image: https://i.imgur.com/nGF1K8f.jpg
+  utter_did_that_help:
+  - text: Did that help you?
+  utter_happy:
+  - text: Great carry on!
+  utter_goodbye:
+  - text: Bye
+  utter_get_file_columns:
+  - text: what file are you interested in?
+  utter_get_file_row:
+  - text: what row number do you want to see?
+  utter_what_next:
+  - text: what would you like to do next?
+actions:
+- utter_greet
+- utter_cheer_up
+- utter_did_that_help
+- utter_happy
+- utter_goodbye
+- utter_get_file_columns
+- utter_get_file_row
+- utter_what_next
+- action_file_columns
+- action_file_row
+- action_last_n_rows
+- action_first_n_rows
+- action_condition_by_year
+- action_condition_by_movie
+- action_condition_by_media
+- action_condition_by_movie_ordered
+- action_welcome_page
+- action_list_category
+- action_show_details
+

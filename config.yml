@@ -1,0 +1,32 @@
+# Configuration for Rasa NLU.
+# https://rasa.com/docs/rasa/nlu/components/
+# replace "supervised_embeddings" pipeline with its individual components
+language: en
+#pipeline: supervised_embeddings
+#
+#pipeline:
+#  - name: "WhitespaceTokenizer"
+#    case_sensitive: false
+#
+#
+pipeline:
+  - name: "WhitespaceTokenizer"
+    case_sensitive: false
+  - name: "RegexFeaturizer"
+  - name: "CRFEntityExtractor"
+  - name: "EntitySynonymMapper"
+  - name: "CountVectorsFeaturizer"
+  - name: "CountVectorsFeaturizer"
+    analyzer: "char_wb"
+    min_ngram: 1
+    max_ngram: 4
+  - name: "EmbeddingIntentClassifier"
+  - name: "EntitySynonymMapper"
+
+
+# Configuration for Rasa Core.
+# https://rasa.com/docs/rasa/core/policies/
+policies:
+  - name: MemoizationPolicy
+  - name: KerasPolicy
+  - name: MappingPolicy

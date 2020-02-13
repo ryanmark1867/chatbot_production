@@ -1,0 +1,15 @@
+curl.exe -X POST -H "Content-Type: application/json" -d '{
+  "greeting": [
+    {
+      "locale":"default",
+      "text":"Hello!" 
+    }, {
+      "locale":"en_US",
+      "text":"Timeless apparel for the masses."
+    }
+  ]
+}' "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=EAAGJJZCYFfXkBABsZB9GocBRKnOGvUuDpmJmZAMvVsMQnRuiYeyrvE7fA7MpDWe6MSePgCCw1jp3PLYNJGENBuvZCI0mtDYC1SeEuE63ULR5WzFPlV4gIAHOZB1OJsxwIWAR8Kyo9qmA97ecMMithpvCtb1TfqybIeqi7VZBOXpgZDZD"
+
+
+
+curl.exe -X POST -H "Content-Type: application/json" -d '{  "greeting": [    {      "locale":"default",      "text":"Hello!"     }, {      "locale":"en_US",      "text":"Timeless apparel for the masses."    }  ]}' "https://graph.facebook.com/v2.6/me/messenger_profile?access_token="EAAGJJZCYFfXkBABsZB9GocBRKnOGvUuDpmJmZAMvVsMQnRuiYeyrvE7fA7MpDWe6MSePgCCw1jp3PLYNJGENBuvZCI0mtDYC1SeEuE63ULR5WzFPlV4gIAHOZB1OJsxwIWAR8Kyo9qmA97ecMMithpvCtb1TfqybIeqi7VZBOXpgZDZD""

@@ -1,0 +1,28 @@
+big_files:
+   links: 'C:\personal\chatbot_july_2019\datasets\links.csv'
+   movies: 'C:\personal\chatbot_july_2019\datasets\movies_metadata.csv'
+   ratings: 'C:\personal\chatbot_july_2019\datasets\mratings.csv'
+   credits: 'C:\personal\chatbot_july_2019\datasets\credits.csv'
+   keywords: 'C:\personal\chatbot_july_2019\datasets\keywords.csv'
+small_files:
+   links: 'https://raw.githubusercontent.com/ryanmark1867/chatbot/master/datasets/links_small.csv'
+   movies: 'https://raw.githubusercontent.com/ryanmark1867/chatbot/master/datasets/movies_metadata_small.csv'
+   ratings: 'https://raw.githubusercontent.com/ryanmark1867/chatbot/master/datasets/ratings_small.csv'
+   credits: 'https://raw.githubusercontent.com/ryanmark1867/chatbot/master/datasets/credits_small.csv'
+   keywords: 'https://raw.githubusercontent.com/ryanmark1867/chatbot/master/datasets/keywords_small.csv'
+general:
+   parent_key: id
+   child_key: movie_id
+   parent_table: movies
+   default_rank: popularity
+   default_rank_col: original_title
+   max_qr: 13
+   max_qr_per_row: 3
+   save_files: False # switch for whether to serialize dataframes
+   saved_files: True #switch for whether to use serialized dataframes
+   debug_on: True # switch for whether to be resiliant and not show crash message (False - for user testing)
+   output_limit: 10 # default limit of output records
+   big_files: True # switch for whether to read large or small raw input data files
+   wv_url: "https://webviewfm.ngrok.io/"
+   image_path_index: medium
+   
