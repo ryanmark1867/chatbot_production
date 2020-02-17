@@ -144,21 +144,21 @@ def homepage():
     selected_category = request.args.get('category')
     print("SELECTED ITEM and CATEGORY"+str(selected_item)+", "+str(selected_category))
     # build query depending on what category was clicked
-    m_payload = "list movies starring Ryan Reynolds"
+    #m_payload = "list movies starring John Wayne"
     if selected_category == 'genre':
         m_payload = 'top '+str(selected_item)+' movies'
     if selected_category == 'director':
         m_payload = 'list movies directed by '+str(selected_item)
     if selected_category == 'actor':
         m_payload = 'list movies starring '+str(selected_item)
-    print("mpayload is "+m_payload)
-    messagePayloadPython = {"sender": "default","message": m_payload}
-    messagePayload = json.dumps(messagePayloadPython)
- 
+    #print("mpayload is "+m_payload)
+    #messagePayloadPython = {"sender": "default","message": m_payload,"output_channel":"latest"}
+    #messagePayload = json.dumps(messagePayloadPython)
+    #r = requests.post(url = API_ENDPOINT, data = messagePayload)
 
     return render_template('home.html',title=title,year = year,plot=plot,run_time=run_time,rating=rating,poster_url=poster_url,genre_list=genre_list,actor_list=actor_list, director_list=director_list)
     print("post return in main func")
-    # r = requests.post(url = API_ENDPOINT, data = messagePayload) 
+    #r = requests.post(url = API_ENDPOINT, data = messagePayload) 
     #return """<h1>Test of dynamic poster display here Feb 1 afternoon</h1>"""
     
 @app.route('/about/')

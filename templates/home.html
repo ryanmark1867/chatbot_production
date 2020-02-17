@@ -15,23 +15,113 @@
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'Messenger'));
 </script>
-<!-- attempt to set up REST call to Rasa server directly from web page
-<script type="text/javascript">
-const userAction = async () => {
-  const response = await fetch(api_endpoint, {
-    method: 'POST',
-	// body: myBody,
-    body: 'list movies starring Stewart Granger', // string or object
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  const myJson = await response.json(); //extract JSON from the http response
-  // do something with myJson
+<!-- code to control closing the page on click per https://stackoverflow.com/questions/688196/how-to-use-a-link-to-call-javascript-->
+
+<!-- attempt to post to rasa rest api -->
+<script>
+function UserAction() {
+    var xhttp = new XMLHttpRequest();
+	let json_val = JSON.stringify({
+		sender: "default",
+		output_channel: "facebook",
+		message: "list movies starring John Hamm"
+	});
+    xhttp.open("POST", 'https://karmaai.ngrok.io/webhooks/rest/webhook', true);
+    xhttp.setRequestHeader('Content-type', 'text/plain');
+    xhttp.send(json_val);
 }
 </script>
--->
-<!-- code to control closing the page on click per https://stackoverflow.com/questions/688196/how-to-use-a-link-to-call-javascript-->
+<!-- REST call to FM -->
+<script>
+function UserAction2() {
+    var xhttp = new XMLHttpRequest();
+	let json_val = JSON.stringify({
+		recipient: {
+			id: "2557075157744451"
+		},
+		message: {
+			text:"Sample text sent from Javascript to Facebook Messenger Feb 15, 2002"
+		}
+	});
+    xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+
+<!-- REST call to Rasa via injecting intent -->
+<script>
+function UserAction3() {
+    var xhttp = new XMLHttpRequest();
+	let json_val = JSON.stringify({
+		include_events: "AFTER_RESTART",
+		output_channel: "facebook",
+		message: {
+			name:"action_condition_by_movie",
+			entities:{
+				ranked_col:"movie",
+				cast_name:"John Hamm"
+			}
+		}
+	});
+	xhttp.open("POST",'http://localhost:5005/conversations/104711304347042/execute', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+<!-- REST call to FM carousel -->
+<script>
+function UserAction4() {
+    var xhttp = new XMLHttpRequest();
+	var target_URL = "https://webviewfm.ngrok.io";
+	var main_title = ["main title 0","main title 1","main title 2"];
+	var sub_title = ["sub title 0","sub title 1","sub title 3"];
+	var img = ["https://image.tmdb.org/t/p/w342/rhIRbceoE9lR4veEXuwCC2wARtG.jpg", "https://image.tmdb.org/t/p/w342/vzmL6fP7aPKNKPRTFnZmiUfciyV.jpg","https://image.tmdb.org/t/p/w342/6ksm1sjKMFLbO7UY2i6G1ju9SML.jpg"];
+	let json_val = JSON.stringify({
+		recipient: {
+			id: "2557075157744451"
+		},
+		message: {
+                   "attachment":{
+                     "type":"template",
+                     "payload":{
+                       "template_type":"generic",
+                       "elements":[
+                          {
+                           "title":main_title[0],
+                           "image_url":img[0],
+                           "subtitle":sub_title[0],
+                           "buttons":[
+                          {
+                           "type":"web_url",
+                           "url":"https://webviewfm.ngrok.io",
+                           "title":"Movie Details",
+                           "messenger_extensions": "true",
+                           "webview_height_ratio": "tall"
+                          }]},
+                          {
+                           "title":"main title 2",
+                           "image_url":img[1],
+                           "subtitle":"sub title 1",
+                           "buttons":[
+                          {
+                           "type":"web_url",
+                           "url":"https://webviewfm.ngrok.io",
+                           "title":"Movie Details",
+                           "messenger_extensions": "true",
+                           "webview_height_ratio": "tall"
+                          }]}                            
+                        ]      
+                      }
+                    }
+                  }
+	});
+    xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+<!-- combined close and call carousel -->
 <script type="text/javascript">
         // Wait for the page to load first
         window.onload = function() {
@@ -63,7 +153,7 @@ const userAction = async () => {
           }
 
           c.onclick = function() {
-            MessengerExtensions.requestCloseBrowser(function success() {}, function failure(err) {
+            MessengerExtensions.requestCloseBrowser(function success() {UserAction4();}, function failure(err) {
 			alert('error closing the window: ' + err); // error closing the window:
 			console.log(err); // doesn't print
 			window.close();
@@ -74,9 +164,13 @@ const userAction = async () => {
 </script>
 <div class="home">
 <h1> {{ title.titlename }} ({{year.yearname}})</h1>
-<p><b>Run Time:</b> {{ run_time.run_timename }}</p>
+<p><b>Run Time f15c:</b> {{ run_time.run_timename }}</p>
 <img style="padding: 0 15px; float: left;" src={{poster_url.poster_urlname}} alt={{title.titlename}} width="342" height="513" border="0">
 <p style="margin-top: 20px;"> </p>
+<p><button type="submit" onclick="UserAction3() u">Test Rasa REST call to trigger execute 3 UserAction3</button> </p>
+<p><button type="submit" onclick="UserAction">Test Rasa REST call UserAction </button> </p>
+<p><button type="submit" onclick="UserAction2()">Test FM REST call UserAction2</button> </p>
+<p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p>
 <p> <b>Rating:</b> 
 <p> <b>Genres:</b> 
 {% for genre in genre_list %}

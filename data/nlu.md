@@ -13,6 +13,10 @@
 - good evening
 - hey there
 
+## intent:show_carousel
+- carousel [Harrison Ford](cast_name)
+- carousel [John Wayne](cast_name)
+
 ## intent: list_category
 - list [genres](category:genre)
 - list [Genres](category:genre)

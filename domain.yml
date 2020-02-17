@@ -16,6 +16,7 @@ intents:
 - welcome_page
 - list_category
 - show_details
+- show_carousel
 
 entities:
 - file_name
@@ -181,4 +182,5 @@ actions:
 - action_welcome_page
 - action_list_category
 - action_show_details
+- action_show_carousel
 

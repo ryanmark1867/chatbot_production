@@ -425,12 +425,12 @@ data = {  "greeting":
 
 # response = requests.post('https://graph.facebook.com/v2.6/me/messenger_profile?access_token=EAAKrBDkZCQtgBAHnWHM5q24XbgXJQrwKcr4WAt1FE8OBWI7vZCS3jBBVX5BXm0XmBLjrNgEyU4Glwdhd49B7wAKLtYgMZAb9PikX6JZCMk4FrXl6hSUPbRdkSUJOitjpiPl6BA2Szx0oAJrE5A94oxGSAMxTNsecRnq9tzMGJQZDZD', headers=headers, data=data)
 
-response = requests.post('https://graph.facebook.com/v2.6/me/messenger_profile', headers=headers,params = params, data=data)
+#response = requests.post('https://graph.facebook.com/v2.6/me/messenger_profile', headers=headers,params = params, data=data)
 #                         ?access_token=EAAKrBDkZCQtgBAHnWHM5q24XbgXJQrwKcr4WAt1FE8OBWI7vZCS3jBBVX5BXm0XmBLjrNgEyU4Glwdhd49B7wAKLtYgMZAb9PikX6JZC
 #                         Mk4FrXl6hSUPbRdkSUJOitjpiPl6BA2Szx0oAJrE5A94oxGSAMxTNsecRnq9tzMGJQZDZD', headers=headers, data=data)
 
 
-logging.warning("response: "+str(response))
+# logging.warning("response: "+str(response))
 
 
 
@@ -723,9 +723,23 @@ def output_result(dispatcher,result,row_range,tracker):
                # add this col to list of columns
                col_list.append(col)
             str_row_log = str_row_log+" "+str(row[col])+"\t"
-         logging.warning(str_row_log)
+         logging.warning("pre display_mode output "+str_row_log)
          # check whether a simple output or details with linkable buttons
          if display_mode == 'text_list':
+            logging.warning("ABOUT TO TRY TO DISPLAY display_mode text_list")
+            # FEB 16 change to force display in FM
+            tracker.events[1]['input_channel'] = "facebook"
+            tracker_value = tracker.get_latest_input_channel()
+            logging.warning("IN DISPLAY input_channel FEB 17b "+str(tracker_value))
+            # dispatcher.utter_custom_json(message1)
+            # "message":{
+            #"text":"hello, world!"
+            #}
+            #message1 = {
+            #    "output_channel":"facebook",
+            #    "message": str_row
+            #}
+            #dispatcher.utter_custom_json(message1)
             dispatcher.utter_message(str_row)
          else:
             # build query that the qr will trigger
@@ -1057,47 +1071,48 @@ class action_condition_by_movie_ordered(Action):
 
 
 class action_condition_by_movie(Action):
-   """return the values from one or more tables"""
-   def name(self) -> Text:
-      return "action_condition_by_movie"
-   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-      logging.warning("IN CONDITION BY MOVIE")
-      # get dictionary of slot values
-      try:
-         slot_dict = {}
-         slot_dict = tracker.current_slot_values()
-         # apply mappings in slot_dict from Rasa to table schema
-         slot_dict = prep_slot_dict(slot_dict)
-         condition_dict = {}
-         condition_dict = get_condition_columns(slot_dict)
-         # get_table expects a list of columns as its first arg, so just take keys from condition_dict dictionary
-         logging.warning("ABOUT TO GET CONDITION TABLE ")
-         condition_table = get_table(list(condition_dict.keys()),movie_schema)
-         logging.warning("ABOUT TO GET RANKED TABLE ")
-         ranked_table = get_table(slot_dict["ranked_col"],movie_schema)
-         logging.warning("condition_dict is "+str(condition_dict))
-         logging.warning("condition_table is "+str(condition_table))
-         logging.warning("ranked_cod is "+str(slot_dict["ranked_col"]))
-         logging.warning("ranked_table is "+str(ranked_table))
-         # call major logic to get results - keep this common for all actions that require filtering and joining of tables
-         result = generate_result(slot_dict,condition_dict,condition_table,ranked_table,dispatcher)      
-         logging.warning("number of rows in result "+str(len(result)))
-         # output result
-         logging.warning("result is "+str(result))
-         if len(result) > 0:
-            output_result(dispatcher,result,slot_dict["row_range"],tracker)
-         else:
-            dispatcher.utter_message("empty result - please try another query")
-      except Exception as e:
-         if debug_on:
-            raise
-         logging.warning("exception generated "+str(e))
-         dispatcher.utter_message("query generated error - please continue with next query")
-      logging.warning("COMMENT: end of transmission")
+    """return the values from one or more tables"""
+    def name(self) -> Text:
+        return "action_condition_by_movie"
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        tracker_value = tracker.get_latest_input_channel()
+        logging.warning("IN CONDITION BY MOVIE TRACKER_VALUE "+str(tracker_value))
+        # get dictionary of slot values
+        try:
+            slot_dict = {}
+            slot_dict = tracker.current_slot_values()
+            # apply mappings in slot_dict from Rasa to table schema
+            slot_dict = prep_slot_dict(slot_dict)
+            condition_dict = {}
+            condition_dict = get_condition_columns(slot_dict)
+            # get_table expects a list of columns as its first arg, so just take keys from condition_dict dictionary
+            logging.warning("ABOUT TO GET CONDITION TABLE ")
+            condition_table = get_table(list(condition_dict.keys()),movie_schema)
+            logging.warning("ABOUT TO GET RANKED TABLE ")
+            ranked_table = get_table(slot_dict["ranked_col"],movie_schema)
+            logging.warning("condition_dict is "+str(condition_dict))
+            logging.warning("condition_table is "+str(condition_table))
+            logging.warning("ranked_cod is "+str(slot_dict["ranked_col"]))
+            logging.warning("ranked_table is "+str(ranked_table))
+            # call major logic to get results - keep this common for all actions that require filtering and joining of tables
+            result = generate_result(slot_dict,condition_dict,condition_table,ranked_table,dispatcher)      
+            logging.warning("number of rows in result "+str(len(result)))
+            # output result
+            logging.warning("result is "+str(result))
+            if len(result) > 0:
+                output_result(dispatcher,result,slot_dict["row_range"],tracker)
+            else:
+                dispatcher.utter_message("empty result - please try another query")
+        except Exception as e:
+            if debug_on:
+                raise
+            logging.warning("exception generated "+str(e))
+            dispatcher.utter_message("query generated error - please continue with next query")
+        logging.warning("COMMENT: end of transmission")
       
-      # TODO more elegant way to clear out used slots
-      #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
-      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None), SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+        # TODO more elegant way to clear out used slots
+        #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
+        return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None), SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
 class action_clear_slots(Action):
@@ -1163,6 +1178,76 @@ def load_wv_payload(wv_payload):
     # read_wv_payload(wv_payload_path)
     return()
     
+class action_show_carousel(Action):
+   """special demo action to show carousel with details picked from webview click"""
+   def name(self) -> Text:
+      return "action_show_carousel"
+   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    # the column of the key will be in condition_col and the key itself will be in the slot indicated by condition_col
+    condition_col = tracker.get_slot('condition_col')
+    raw_key = tracker.get_slot(condition_col)
+    ''' given an actor, show a carousel with the posters for all the actor's movies, in text the movie title, date, character name
+    '''
+    main_title = []
+    sub_title = []
+    poster_path = []
+    img = []
+    main_title.append("movie_title 1 goes here")
+    sub_title.append("movie info 1 (date, character name, etc) goes here")
+    poster_path.append("rhIRbceoE9lR4veEXuwCC2wARtG.jpg")
+    main_title.append("movie_title 1 goes here")
+    sub_title.append("movie info 1 (date, character name, etc) goes here")
+    poster_path.append("vzmL6fP7aPKNKPRTFnZmiUfciyV.jpg")
+    main_title.append("movie_title 2 goes here")
+    sub_title.append("movie info 3 (date, character name, etc) goes here")
+    poster_path.append("6ksm1sjKMFLbO7UY2i6G1ju9SML.jpg")
+    img.append(image_path_dict[image_path_index]+"/"+poster_path[0])
+    img.append(image_path_dict[image_path_index]+"/"+poster_path[1])
+    img.append(image_path_dict[image_path_index]+"/"+poster_path[2])
+    target_URL = wv_URL
+    logging.warning("CAROUSEL condition_col "+str(condition_col))
+    logging.warning("CAROUSEL raw_key "+str(raw_key))
+    logging.warning("CAROUSEL poster URL "+str(img[0]))
+    message6 =  {
+                   "attachment":{
+                     "type":"template",
+                     "payload":{
+                       "template_type":"generic",
+                       "elements":[
+                          {
+                           "title":main_title[0],
+                           "image_url":img[0],
+                           "subtitle":sub_title[0],
+                           "buttons":[
+                          {
+                           "type":"web_url",
+                           "url":target_URL,
+                           "title":"Movie Details",
+                           "messenger_extensions": "true",
+                           "webview_height_ratio": "tall"
+                          }]},
+                          {
+                           "title":main_title[1],
+                           "image_url":img[1],
+                           "subtitle":sub_title[1],
+                           "buttons":[
+                          {
+                           "type":"web_url",
+                           "url":target_URL,
+                           "title":"Movie Details",
+                           "messenger_extensions": "true",
+                           "webview_height_ratio": "tall"
+                          }]}                            
+                        ]      
+                      }
+                    }
+                  }
+      
+    dispatcher.utter_custom_json(message6)
+    dispatcher.utter_message("COMMENT - past posting to FM Feb 17")
+ 
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+
       
 class action_show_details(Action):
    """special demo action to show canned web page - TODO provide a less hacky way to do this"""
@@ -1170,7 +1255,8 @@ class action_show_details(Action):
       return "action_show_details"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
       #
-      logging.warning("IN ACTION SHOW DETAILS")
+      tracker_value = tracker.get_latest_input_channel()
+      logging.warning("IN ACTION SHOW DETAILS TRACKER_VALUE "+str(tracker_value))
       global wv_payload
       raw_movie = tracker.get_slot('movie')
       logging.warning("raw_movie is "+str(raw_movie))
