@@ -1178,20 +1178,72 @@ def load_wv_payload(wv_payload):
     # read_wv_payload(wv_payload_path)
     return()
     
+def get_carousel_payload(key_slot, key_value):
+    ''' for the key_slot with key_value, assemble the payload to be displayed in carousel for demo step 5. return payload list'''
+    # TODO post demo 1, replace this hacky approach and combine with getting the payload for webview
+    # TODO hierarchy of dictionaries (used to simplify serialization to JSON) with class definition - ideally adapt wv_payload class
+    # dictionary containing entire carousel payload, including array of dictionaries of movies
+    # get all movie IDs for movies where this cast member is listed
+    # only profile path uniquely identifies individual - cast_id doesn't
+    logging.warning("carousel key_slot is"+str(key_slot))
+    logging.warning("carousel key_value is"+str(key_value))
+    movie_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'].tolist()
+    cast_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['cast_id'].tolist()
+    # credits_cast is ['cast_id', 'character', 'credit_id', 'gender', 'id', 'cast_name', 'order', 'profile_path', 'movie_id']
+    carousel_dict = {}
+    carousel_dict["cast_name"] = key_value
+    carousel_dict["movie_list"] = []
+    cast_picture_url_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['profile_path'].tolist()
+    carousel_dict["cast_picture_url"] = cast_picture_url_list[0]
+    for movie_id_value in movie_id_list:
+        movie_carousel_dict = {}
+        #logging.warning("carousel movie_id is"+str(movie_id_value))
+        original_title_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['original_title'].tolist()
+        # check for corrupted entries and skip
+        if len(original_title_list) <= 0:
+            continue
+        #logging.warning("carousel poster_path_list is"+str(original_title_list))
+        movie_carousel_dict["original_title"] = original_title_list[0]
+        year_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['year'].tolist()
+        movie_carousel_dict["year"] = year_list[0]
+        movie_carousel_dict["character"] = df_dict['credits_cast'][(df_dict['credits_cast']['movie_id']==movie_id_value) & (df_dict['credits_cast']['profile_path']==cast_picture_url_list[0])]['character'].tolist()
+        logging.warning("carousel character_list is"+str(movie_carousel_dict["character"]))
+        poster_path_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['poster_path'].tolist()
+        #logging.warning("carousel poster_path_list is"+str(poster_path_list))
+        movie_carousel_dict["poster_path"] = image_path_dict[image_path_index]+poster_path_list[0]
+        carousel_dict["movie_list"].append(movie_carousel_dict.copy())
+    #carousel_dict["cast_picture_url"] = 
+    return(carousel_dict)
+    
 class action_show_carousel(Action):
    """special demo action to show carousel with details picked from webview click"""
    def name(self) -> Text:
       return "action_show_carousel"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
     # the column of the key will be in condition_col and the key itself will be in the slot indicated by condition_col
-    condition_col = tracker.get_slot('condition_col')
+    # TODO replace hardcoding of condition_col with something more intelligent
+    condition_col = 'cast_name'
     raw_key = tracker.get_slot(condition_col)
+    logging.warning("carousel condition_col is"+str(condition_col))
+    logging.warning("carousel raw_key is"+str(raw_key))
+    carousel_payload = get_carousel_payload('cast_name',raw_key[0])
     ''' given an actor, show a carousel with the posters for all the actor's movies, in text the movie title, date, character name
     '''
     main_title = []
     sub_title = []
     poster_path = []
     img = []
+    for movie_dict in carousel_payload["movie_list"]:
+        main_title_str = movie_dict["original_title"]+"("+movie_dict["year"]+")"
+        main_title.append(main_title_str)
+        if len(movie_dict["character"]) == 0:
+            sub_title_str = "not named"
+        else: 
+            sub_title_str = str(movie_dict["character"])
+        sub_title.append(sub_title_str)
+        img.append(movie_dict["poster_path"])
+        
+    '''
     main_title.append("movie_title 1 goes here")
     sub_title.append("movie info 1 (date, character name, etc) goes here")
     poster_path.append("rhIRbceoE9lR4veEXuwCC2wARtG.jpg")
@@ -1204,10 +1256,15 @@ class action_show_carousel(Action):
     img.append(image_path_dict[image_path_index]+"/"+poster_path[0])
     img.append(image_path_dict[image_path_index]+"/"+poster_path[1])
     img.append(image_path_dict[image_path_index]+"/"+poster_path[2])
+    '''
     target_URL = wv_URL
     logging.warning("CAROUSEL condition_col "+str(condition_col))
     logging.warning("CAROUSEL raw_key "+str(raw_key))
     logging.warning("CAROUSEL poster URL "+str(img[0]))
+    for i in range(0,3):
+        logging.warning("CAROUSEL main_title "+str(main_title[i]))
+        logging.warning("CAROUSEL sub_title "+str(sub_title[i]))
+        logging.warning("CAROUSEL img "+str(img[i]))
     message6 =  {
                    "attachment":{
                      "type":"template",
