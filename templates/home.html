@@ -24,7 +24,7 @@ function UserAction() {
 	let json_val = JSON.stringify({
 		sender: "default",
 		output_channel: "facebook",
-		message: "list movies starring John Hamm"
+		message: "carousel John Hamm"
 	});
     xhttp.open("POST", 'https://karmaai.ngrok.io/webhooks/rest/webhook', true);
     xhttp.setRequestHeader('Content-type', 'text/plain');
@@ -121,6 +121,61 @@ function UserAction4() {
     xhttp.send(json_val);
 }
 </script>
+<script>
+function UserAction5() {
+    var xhttp = new XMLHttpRequest();
+	var target_URL = "https://webviewfm.ngrok.io";
+	var main_title = ["main title 0","main title 1","main title 2"];
+	var sub_title = ["sub title 0","sub title 1","sub title 3"];
+	var img = ["https://image.tmdb.org/t/p/w500/rhIRbceoE9lR4veEXuwCC2wARtG.jpg", "https://image.tmdb.org/t/p/w342/vzmL6fP7aPKNKPRTFnZmiUfciyV.jpg","https://image.tmdb.org/t/p/w342/6ksm1sjKMFLbO7UY2i6G1ju9SML.jpg"];
+	let json_val = JSON.stringify({
+		recipient: {
+			id: "2557075157744451"
+		},
+		message: {
+                        "attachment": {
+                            "payload": {
+                                "elements": [
+                                    {
+                                        "buttons": [
+                                            {
+                                                "messenger_extensions": "true",
+                                                "title": "Movie Details",
+                                                "type": "web_url",
+                                                "url": "https://webviewfm.ngrok.io/",
+                                                "webview_height_ratio": "tall"
+                                            }
+                                        ],
+                                        "image_url": "https://image.tmdb.org/t/p/w342/jQh15y5YB7bWz1NtffNZmRw0s9D.jpg",
+                                        "subtitle": "'Linus Larrabee'",
+                                        "title": "Sabrina(1995)"
+                                    },
+                                    {
+                                        "buttons": [
+                                            {
+                                                "messenger_extensions": "true",
+                                                "title": "Movie Details",
+                                                "type": "web_url",
+                                                "url": "https://webviewfm.ngrok.io/",
+                                                "webview_height_ratio": "tall"
+                                            }
+                                        ],
+                                        "image_url": "https://image.tmdb.org/t/p/w342/btTdmkgIvOi0FFip1sPuZI2oQG6.jpg",
+                                        "subtitle": "'Han Solo'",
+                                        "title": "Star Wars(1977)"
+                                    }
+                                ],
+                                "template_type": "generic"
+                            },
+                            "type": "template"
+                        }
+					}
+	});
+    xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
 <!-- combined close and call carousel -->
 <script type="text/javascript">
         // Wait for the page to load first
@@ -171,6 +226,7 @@ function UserAction4() {
 <p><button type="submit" onclick="UserAction">Test Rasa REST call UserAction </button> </p>
 <p><button type="submit" onclick="UserAction2()">Test FM REST call UserAction2</button> </p>
 <p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p>
+<p><button type="submit" onclick="UserAction5()">Test FM REST call UserAction5 CAROUSEL JSON returned from RASA call</button> </p>
 <p> <b>Rating:</b> 
 <p> <b>Genres:</b> 
 {% for genre in genre_list %}

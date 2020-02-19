@@ -1239,7 +1239,8 @@ class action_show_carousel(Action):
         if len(movie_dict["character"]) == 0:
             sub_title_str = "not named"
         else: 
-            sub_title_str = str(movie_dict["character"])
+            # str(my_list3).strip('[]')
+            sub_title_str = str(movie_dict["character"]).strip('[]')
         sub_title.append(sub_title_str)
         img.append(movie_dict["poster_path"])
         
