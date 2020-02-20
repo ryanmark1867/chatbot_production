@@ -24,7 +24,7 @@ function UserAction() {
 	let json_val = JSON.stringify({
 		sender: "default",
 		output_channel: "facebook",
-		message: "carousel John Hamm"
+		message: "show movies starring John Hamm"
 	});
     xhttp.open("POST", 'https://karmaai.ngrok.io/webhooks/rest/webhook', true);
     xhttp.setRequestHeader('Content-type', 'text/plain');
@@ -121,6 +121,7 @@ function UserAction4() {
     xhttp.send(json_val);
 }
 </script>
+<!-- hardcoded carousel to FM -->
 <script>
 function UserAction5() {
     var xhttp = new XMLHttpRequest();
@@ -148,7 +149,7 @@ function UserAction5() {
                                         ],
                                         "image_url": "https://image.tmdb.org/t/p/w342/jQh15y5YB7bWz1NtffNZmRw0s9D.jpg",
                                         "subtitle": "'Linus Larrabee'",
-                                        "title": "Sabrina(1995)"
+                                        "title": "Sabrina(1995) REST CALL MOCKUP"
                                     },
                                     {
                                         "buttons": [
@@ -172,6 +173,46 @@ function UserAction5() {
 					}
 	});
     xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+<!-- Rasa REST call to set slot -->
+<script>
+function UserAction6() {
+    var xhttp = new XMLHttpRequest();
+	let json_val = JSON.stringify({"event":"slot","name":"ranked_col","value":["movies"]});
+	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/tracker/events?include_events=NONE', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+<!-- Rasa REST call to execute action -->
+<script>
+function UserAction7() {
+    var xhttp = new XMLHttpRequest();
+	let json_val = JSON.stringify({"name": "action_condition_by_movie"});
+	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/execute?output_channel=facebook&input_channel=facebook', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+<!-- Rasa REST call to set slot -->
+<script>
+function CarouselSetSlot() {
+    var xhttp = new XMLHttpRequest();
+	let json_val = JSON.stringify({"event":"slot","name":"cast_name","value":["harrison ford"]});
+	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/tracker/events?include_events=NONE', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+<!-- Rasa REST call to execute action -->
+<script>
+function CarouselExecAction() {
+    var xhttp = new XMLHttpRequest();
+	let json_val = JSON.stringify({"name": "action_show_carousel"});
+	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/execute?output_channel=facebook&input_channel=facebook', true);
     xhttp.setRequestHeader('Content-type', 'application/json');
     xhttp.send(json_val);
 }
@@ -227,6 +268,8 @@ function UserAction5() {
 <p><button type="submit" onclick="UserAction2()">Test FM REST call UserAction2</button> </p>
 <p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p>
 <p><button type="submit" onclick="UserAction5()">Test FM REST call UserAction5 CAROUSEL JSON returned from RASA call</button> </p>
+<p><button type="submit" onclick="CarouselSetSlot()">Test Rasa REST call CarouselSetSlot set slot c</button> </p>
+<p><button type="submit" onclick="CarouselExecAction()">Test Rasa REST call CarouselExecAction execute action</button> </p>
 <p> <b>Rating:</b> 
 <p> <b>Genres:</b> 
 {% for genre in genre_list %}

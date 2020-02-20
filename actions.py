@@ -73,6 +73,7 @@ big_files = config['general']['big_files']
 # URL for webview FM root
 wv_URL = config['general']['wv_url']
 image_path_index = config['general']['image_path_index']
+placeholder_image = config['general']['placeholder_image']
 # detail_mode:
 #    type: categorical
 #    initial_value: text_list
@@ -1190,11 +1191,17 @@ def get_carousel_payload(key_slot, key_value):
     movie_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'].tolist()
     cast_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['cast_id'].tolist()
     # credits_cast is ['cast_id', 'character', 'credit_id', 'gender', 'id', 'cast_name', 'order', 'profile_path', 'movie_id']
+    cast_pict = True
     carousel_dict = {}
     carousel_dict["cast_name"] = key_value
     carousel_dict["movie_list"] = []
     cast_picture_url_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['profile_path'].tolist()
+    if len(cast_picture_url_list) <= 0:
+        cast_picture_url_list.append(placeholder_image)
+        cast_pict = False
+     
     carousel_dict["cast_picture_url"] = cast_picture_url_list[0]
+    # key_slot_prepped = (df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))
     for movie_id_value in movie_id_list:
         movie_carousel_dict = {}
         #logging.warning("carousel movie_id is"+str(movie_id_value))
@@ -1206,7 +1213,12 @@ def get_carousel_payload(key_slot, key_value):
         movie_carousel_dict["original_title"] = original_title_list[0]
         year_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['year'].tolist()
         movie_carousel_dict["year"] = year_list[0]
-        movie_carousel_dict["character"] = df_dict['credits_cast'][(df_dict['credits_cast']['movie_id']==movie_id_value) & (df_dict['credits_cast']['profile_path']==cast_picture_url_list[0])]['character'].tolist()
+        # movie_id_list = df_dict['movies'][(df_dict['movies'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['id'].tolist()
+        if cast_pict:
+            #use cast_pict as an index if it exists
+            movie_carousel_dict["character"] = df_dict['credits_cast'][(df_dict['credits_cast']['movie_id']==movie_id_value) & (df_dict['credits_cast']['profile_path']==cast_picture_url_list[0])]['character'].tolist()
+        else:
+            movie_carousel_dict["character"] = df_dict['credits_cast'][(df_dict['credits_cast']['movie_id']==movie_id_value) & ((df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value)]['character'].tolist()
         logging.warning("carousel character_list is"+str(movie_carousel_dict["character"]))
         poster_path_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['poster_path'].tolist()
         #logging.warning("carousel poster_path_list is"+str(poster_path_list))
@@ -1261,12 +1273,13 @@ class action_show_carousel(Action):
     target_URL = wv_URL
     logging.warning("CAROUSEL condition_col "+str(condition_col))
     logging.warning("CAROUSEL raw_key "+str(raw_key))
-    logging.warning("CAROUSEL poster URL "+str(img[0]))
-    for i in range(0,3):
-        logging.warning("CAROUSEL main_title "+str(main_title[i]))
-        logging.warning("CAROUSEL sub_title "+str(sub_title[i]))
-        logging.warning("CAROUSEL img "+str(img[i]))
-    message6 =  {
+    if len(img) > 0:
+        logging.warning("CAROUSEL poster URL "+str(img[0]))
+        for i in range(0,3):
+            logging.warning("CAROUSEL main_title "+str(main_title[i]))
+            logging.warning("CAROUSEL sub_title "+str(sub_title[i]))
+            logging.warning("CAROUSEL img "+str(img[i]))
+        message6 =  {
                    "attachment":{
                      "type":"template",
                      "payload":{
@@ -1301,8 +1314,10 @@ class action_show_carousel(Action):
                     }
                   }
       
-    dispatcher.utter_custom_json(message6)
-    dispatcher.utter_message("COMMENT - past posting to FM Feb 17")
+        dispatcher.utter_custom_json(message6)
+        dispatcher.utter_message("COMMENT - past posting to FM Feb 17")
+    else:
+        dispatcher.utter_message("COMMENT - empty - no carousel")
  
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
