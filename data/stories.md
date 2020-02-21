@@ -3,15 +3,14 @@
   - action_welcome_page
 
 ## New Story
-* show_carousel{"cast_name":"Harrison Ford"}
-	- slot{"cast_name":"Harrison Ford"}
-	- action_show_carousel
-
-
-## New Story
 * list_category{"category":"genre"}
     - slot{"category":"genre"}
     - action_list_category
+	
+## New Story
+* show_carousel{"cast_name":"Harrison Ford"}
+	- slot{"cast_name":"Harrison Ford"}
+	- action_show_carousel
 
 ## New Story
 * show_details{"movie":"Blade Runner"}

@@ -211,6 +211,23 @@ function CarouselSetSlot() {
 <script>
 function CarouselExecAction() {
     var xhttp = new XMLHttpRequest();
+	xhttp.onload = function () {
+    if (xhttp.readyState === xhttp.DONE) {
+        if (xhttp.status === 200) {
+            console.log(xhttp.response);
+            console.log(xhttp.responseText);
+			}
+		}
+	};
+	let json_val = JSON.stringify({"name": "action_show_carousel"});
+	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/execute?output_channel=facebook&input_channel=facebook', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+}
+</script>
+<script>
+function CarouselExecActionRT() {
+    var xhttp = new XMLHttpRequest();
 	let json_val = JSON.stringify({"name": "action_show_carousel"});
 	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/execute?output_channel=facebook&input_channel=facebook', true);
     xhttp.setRequestHeader('Content-type', 'application/json');

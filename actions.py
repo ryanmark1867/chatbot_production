@@ -1234,8 +1234,10 @@ class action_show_carousel(Action):
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
     # the column of the key will be in condition_col and the key itself will be in the slot indicated by condition_col
     # TODO replace hardcoding of condition_col with something more intelligent
+    logging.warning("IN ACTION_SHOW_CAROUSEL")
     condition_col = 'cast_name'
     raw_key = tracker.get_slot(condition_col)
+    # for slot in 
     logging.warning("carousel condition_col is"+str(condition_col))
     logging.warning("carousel raw_key is"+str(raw_key))
     carousel_payload = get_carousel_payload('cast_name',raw_key[0])
@@ -1245,41 +1247,31 @@ class action_show_carousel(Action):
     sub_title = []
     poster_path = []
     img = []
-    for movie_dict in carousel_payload["movie_list"]:
-        main_title_str = movie_dict["original_title"]+"("+movie_dict["year"]+")"
-        main_title.append(main_title_str)
-        if len(movie_dict["character"]) == 0:
-            sub_title_str = "not named"
-        else: 
-            # str(my_list3).strip('[]')
-            sub_title_str = str(movie_dict["character"]).strip('[]')
-        sub_title.append(sub_title_str)
-        img.append(movie_dict["poster_path"])
+    try:
+        slot_dict = tracker.current_slot_values()
+        for slot in slot_dict:
+            logging.warning("CAROUSEL slot is "+str(slot)+" "+str(slot_dict[slot]))
+        for movie_dict in carousel_payload["movie_list"]:
+            main_title_str = movie_dict["original_title"]+"("+movie_dict["year"]+")"
+            main_title.append(main_title_str)
+            if len(movie_dict["character"]) == 0:
+                sub_title_str = "not named"
+            else: 
+                # str(my_list3).strip('[]')
+                sub_title_str = str(movie_dict["character"]).strip('[]')
+            sub_title.append(sub_title_str)
+            img.append(movie_dict["poster_path"])
         
-    '''
-    main_title.append("movie_title 1 goes here")
-    sub_title.append("movie info 1 (date, character name, etc) goes here")
-    poster_path.append("rhIRbceoE9lR4veEXuwCC2wARtG.jpg")
-    main_title.append("movie_title 1 goes here")
-    sub_title.append("movie info 1 (date, character name, etc) goes here")
-    poster_path.append("vzmL6fP7aPKNKPRTFnZmiUfciyV.jpg")
-    main_title.append("movie_title 2 goes here")
-    sub_title.append("movie info 3 (date, character name, etc) goes here")
-    poster_path.append("6ksm1sjKMFLbO7UY2i6G1ju9SML.jpg")
-    img.append(image_path_dict[image_path_index]+"/"+poster_path[0])
-    img.append(image_path_dict[image_path_index]+"/"+poster_path[1])
-    img.append(image_path_dict[image_path_index]+"/"+poster_path[2])
-    '''
-    target_URL = wv_URL
-    logging.warning("CAROUSEL condition_col "+str(condition_col))
-    logging.warning("CAROUSEL raw_key "+str(raw_key))
-    if len(img) > 0:
-        logging.warning("CAROUSEL poster URL "+str(img[0]))
-        for i in range(0,3):
-            logging.warning("CAROUSEL main_title "+str(main_title[i]))
-            logging.warning("CAROUSEL sub_title "+str(sub_title[i]))
-            logging.warning("CAROUSEL img "+str(img[i]))
-        message6 =  {
+        target_URL = wv_URL
+        logging.warning("CAROUSEL condition_col "+str(condition_col))
+        logging.warning("CAROUSEL raw_key "+str(raw_key))
+        if len(img) > 0:
+            logging.warning("CAROUSEL poster URL "+str(img[0]))
+            for i in range(0,2):
+                logging.warning("CAROUSEL main_title "+str(main_title[i]))
+                logging.warning("CAROUSEL sub_title "+str(sub_title[i]))
+                logging.warning("CAROUSEL img "+str(img[i]))
+            message6 =  {
                    "attachment":{
                      "type":"template",
                      "payload":{
@@ -1314,11 +1306,15 @@ class action_show_carousel(Action):
                     }
                   }
       
-        dispatcher.utter_custom_json(message6)
-        dispatcher.utter_message("COMMENT - past posting to FM Feb 17")
-    else:
-        dispatcher.utter_message("COMMENT - empty - no carousel")
- 
+            dispatcher.utter_custom_json(message6)
+            dispatcher.utter_message("COMMENT - past posting to FM Feb 17")
+        else:
+            dispatcher.utter_message("COMMENT - empty - no carousel")
+    except:
+         if debug_on:
+            raise
+         dispatcher.utter_message("carousel failed - please try another query")
+    dispatcher.utter_message("COMMENT - leaving carousel")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
       

@@ -14,8 +14,8 @@
 - hey there
 
 ## intent:show_carousel
-- carousel [Harrison Ford](cast_name)
-- carousel [John Wayne](cast_name)
+- carousel command for [Harrison Ford](cast_name)
+- carousel command for [John Wayne](cast_name)
 
 ## intent: list_category
 - list [genres](category:genre)
