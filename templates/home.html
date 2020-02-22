@@ -172,8 +172,11 @@ function UserAction5() {
                         }
 					}
 	});
-    xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
+    window.json_val_copy = json_val;
+	xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
     xhttp.setRequestHeader('Content-type', 'application/json');
+	console.log("ABOUT TO PUT OUT json_val in canned FM REST call");
+	console.log(json_val);
     xhttp.send(json_val);
 }
 </script>
@@ -205,6 +208,7 @@ function CarouselSetSlot() {
 	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/tracker/events?include_events=NONE', true);
     xhttp.setRequestHeader('Content-type', 'application/json');
     xhttp.send(json_val);
+	console.log("EYECATCHER");
 }
 </script>
 <!-- Rasa REST call to execute action -->
@@ -214,8 +218,42 @@ function CarouselExecAction() {
 	xhttp.onload = function () {
     if (xhttp.readyState === xhttp.DONE) {
         if (xhttp.status === 200) {
-            console.log(xhttp.response);
-            console.log(xhttp.responseText);
+            //console.log(xhttp.response);
+            console.log("EYECATCHER4");
+			//generate a JS object from the responseText
+			js_json = JSON.parse(xhttp.responseText);
+			alert(js_json.tracker.slots.detail_mode);
+			// steps:
+			// 1. convert the response back from Rasa to a JS object
+			// 2. use dot notation to extract the subset of the JS object that needs to go into the FM payload
+			// 3. convert the subset to a JS string
+			// 4. concat subset JS string with the rest of the payload that FM requires
+			// 5. 
+			// get the subset of the JS object that is needed for the payload to FM
+			window.js_payload_obj = js_json.tracker.events[3].data.custom;
+
+			// need to add this structure to root of string to prepare for FM call:
+			//{
+			//recipient: {
+			//id: "2557075157744451"
+			//},
+			//message: { window.js_payload_string goes here
+			// }
+			// 
+			// get the JS string version of the JS object
+			window.js_payload_str = JSON.stringify(js_json.tracker.events[3].data.custom);
+			console.log("ABOUT TO PUT OUT window.js_payload_str");
+			console.log(window.js_payload_str);
+			// define skeleton of the FM payload outside of the payload returned by the Rasa call
+			var skeleton_json_str = '{"recipient": {"id": "2557075157744451"},"message": ';
+			// concat string that has the payload from Rasa in the middle
+			window.payload_for_fm_str = skeleton_json_str.concat(window.js_payload_str,"}");
+			window.payload_for_fm_stringified = JSON.stringify(window.payload_for_fm_str);
+			// convert string to JSON
+			console.log("here is payload_for_fm_stringified");
+			console.log(window.payload_for_fm_stringified)
+			
+			console.log("EYECATCHER");
 			}
 		}
 	};
@@ -223,6 +261,15 @@ function CarouselExecAction() {
 	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/execute?output_channel=facebook&input_channel=facebook', true);
     xhttp.setRequestHeader('Content-type', 'application/json');
     xhttp.send(json_val);
+}
+</script>
+<!-- carousel to FM -->
+<script>
+function CarouselToFM() {
+    var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(window.payload_for_fm_str);
 }
 </script>
 <script>
@@ -287,6 +334,7 @@ function CarouselExecActionRT() {
 <p><button type="submit" onclick="UserAction5()">Test FM REST call UserAction5 CAROUSEL JSON returned from RASA call</button> </p>
 <p><button type="submit" onclick="CarouselSetSlot()">Test Rasa REST call CarouselSetSlot set slot c</button> </p>
 <p><button type="submit" onclick="CarouselExecAction()">Test Rasa REST call CarouselExecAction execute action</button> </p>
+<p><button type="submit" onclick="CarouselToFM()">Test Rasa REST call CarouselToFM() send payload to FM Feb 22b</button> </p>
 <p> <b>Rating:</b> 
 <p> <b>Genres:</b> 
 {% for genre in genre_list %}
