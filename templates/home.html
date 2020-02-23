@@ -200,7 +200,7 @@ function UserAction7() {
     xhttp.send(json_val);
 }
 </script>
-<!-- Rasa REST call to set slot -->
+<!-- Rasa REST call to set slot STEP BY STEP BY BUTTONS STEP 1-->
 <script>
 function CarouselSetSlot() {
     var xhttp = new XMLHttpRequest();
@@ -211,7 +211,7 @@ function CarouselSetSlot() {
 	console.log("EYECATCHER");
 }
 </script>
-<!-- Rasa REST call to execute action -->
+<!-- Rasa REST call to execute action STEP BY STEP BY BUTTONS STEP 2 -->
 <script>
 function CarouselExecAction() {
     var xhttp = new XMLHttpRequest();
@@ -248,10 +248,9 @@ function CarouselExecAction() {
 			var skeleton_json_str = '{"recipient": {"id": "2557075157744451"},"message": ';
 			// concat string that has the payload from Rasa in the middle
 			window.payload_for_fm_str = skeleton_json_str.concat(window.js_payload_str,"}");
-			window.payload_for_fm_stringified = JSON.stringify(window.payload_for_fm_str);
-			// convert string to JSON
-			console.log("here is payload_for_fm_stringified");
-			console.log(window.payload_for_fm_stringified)
+			// print to console
+			console.log("here is payload_for_fm_str");
+			console.log(window.payload_for_fm_str)
 			
 			console.log("EYECATCHER");
 			}
@@ -263,7 +262,7 @@ function CarouselExecAction() {
     xhttp.send(json_val);
 }
 </script>
-<!-- carousel to FM -->
+<!-- carousel to FM STEP BY STEP BY BUTTONS - STEP 3 -->
 <script>
 function CarouselToFM() {
     var xhttp = new XMLHttpRequest();
@@ -273,15 +272,128 @@ function CarouselToFM() {
 }
 </script>
 <script>
-function CarouselExecActionRT() {
+function showCarouselSetSlot(actor_name) {
     var xhttp = new XMLHttpRequest();
+	var json_prefix_str = '{"event":"slot","name":"cast_name","value":["';
+	json_val = json_prefix_str.concat(actor_name.toLowerCase(),'"]}');
+	console.log("EYECATCHER 1.1 slot set json_val is")
+	console.log(json_val)
+	//let json_val = JSON.stringify({"event":"slot","name":"cast_name","value":["harrison ford"]});
+	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/tracker/events?include_events=NONE', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(json_val);
+	console.log("EYECATCHER 1.2 end of showCarouselSetSlot");
+}
+</script>
+<script>
+function showCarouselExecAction() {
+	console.log("EYECATCHER 2.1 beginning of showCarouselExecAction");
+    var xhttp = new XMLHttpRequest();
+	xhttp.onload = function () {
+    if (xhttp.readyState === xhttp.DONE) {
+        if (xhttp.status === 200) {
+            //console.log(xhttp.response);
+            console.log("EYECATCHER 2.2");
+			// steps:
+			// 1. convert the response back from Rasa to a JS object
+			// 2. use dot notation to extract the subset of the JS object that needs to go into the FM payload
+			// 3. convert the subset to a JS string
+			// 4. create string for prefix
+			// 4. concat subset JS string with prefix and suffix
+			//
+			//1. generate a JS object from the responseText
+			js_json = JSON.parse(xhttp.responseText);
+			//alert(js_json.tracker.slots.detail_mode);
+  
+			//2.  get the subset of the JS object that is needed for the payload to FM
+			window.js_payload_obj = js_json.tracker.events[3].data.custom;
+			//3. get the JS string version of the JS object
+			window.js_payload_str = JSON.stringify(js_json.tracker.events[3].data.custom);
+
+			//4. define skeleton of the FM payload outside of the payload returned by the Rasa call
+			var skeleton_json_str = '{"recipient": {"id": "2557075157744451"},"message": ';
+			//5.  concat string that has the payload from Rasa in the middle
+			window.payload_for_fm_str = skeleton_json_str.concat(window.js_payload_str,"}");
+			payload_for_fm_show_str = skeleton_json_str.concat(window.js_payload_str,"}");
+			// print to console
+			console.log("here is payload_for_fm_str");
+			console.log(window.payload_for_fm_str);
+			showCarouselToFM(payload_for_fm_show_str);
+			console.log("EYECATCHER SLIMLINE4 - past showCarouselToFM");
+			console.log("EYECATCHER 2.3 end of showCarouselExecAction()");
+			}
+		}
+	};
 	let json_val = JSON.stringify({"name": "action_show_carousel"});
 	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/execute?output_channel=facebook&input_channel=facebook', true);
     xhttp.setRequestHeader('Content-type', 'application/json');
     xhttp.send(json_val);
+	console.log("EYECATCHER 2.4 end of showCarouselExecAction - here is json_val");
+	console.log(json_val);
 }
 </script>
+<script>
+function showCarouselToFM(payload_for_fm_show_str) {
+    var xhttp = new XMLHttpRequest();
+	xhttp.onload = function () {
+    if (xhttp.readyState === xhttp.DONE) {
+        if (xhttp.status === 200) {
+		    MessengerExtensions.requestCloseBrowser(function success() {}, function failure(err) {
+			alert('error closing the window: ' + err); // error closing the window:
+			console.log(err); // doesn't print
+			window.close();
+			});
+            }
+	}
+	}
+	console.log("EYECATCHER 3.1 start of showCarouselToFM ");
+	xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(payload_for_fm_show_str);
+	console.log("EYECATCHER 3.2 end of showCarouselToFM - here is window.payload_for_fm_str");
+	console.log(window.payload_for_fm_str);
+}
+</script>
+<script>
+function showCarousel(actor_name) {
+            
+				console.log(actor_name);
+				// set slot
+				console.log("EYECATCHER SLIMLINE1 - past showCarouselSetSlot");
+				showCarouselSetSlot(actor_name);
+				console.log("EYECATCHER SLIMLINE2 - past showCarouselSetSlot");
+				// execute Rasa action and prepare Rasa output for call to render in FM
+				showCarouselExecAction();
+				console.log("EYECATCHER SLIMLINE3 - past showCarouselExecAction");
+				// render output of Rasa action in FM
+				
+			
+          }
+</script>
+<script>
+function showCarouselclosepage(actor_name) {
+            MessengerExtensions.requestCloseBrowser(function success() {
+				console.log(actor_name);
+				// set slot
+				console.log("EYECATCHER SLIMLINE1 - past showCarouselSetSlot");
+				showCarouselSetSlot(actor_name);
+				console.log("EYECATCHER SLIMLINE2 - past showCarouselSetSlot");
+				// execute Rasa action and prepare Rasa output for call to render in FM
+				showCarouselExecAction();
+				console.log("EYECATCHER SLIMLINE3 - past showCarouselExecAction");
+				// render output of Rasa action in FM
+			}, 
+			function failure(err) {
+			alert('error closing the window: ' + err); // error closing the window:
+			console.log(err); // doesn't print
+			window.close();
+			});
+            return false;
+          }
+</script>
+
 <!-- combined close and call carousel -->
+<!--
 <script type="text/javascript">
         // Wait for the page to load first
         window.onload = function() {
@@ -322,6 +434,7 @@ function CarouselExecActionRT() {
           }
         }
 </script>
+-->
 <div class="home">
 <h1> {{ title.titlename }} ({{year.yearname}})</h1>
 <p><b>Run Time f15c:</b> {{ run_time.run_timename }}</p>
@@ -332,15 +445,16 @@ function CarouselExecActionRT() {
 <p><button type="submit" onclick="UserAction2()">Test FM REST call UserAction2</button> </p>
 <p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p>
 <p><button type="submit" onclick="UserAction5()">Test FM REST call UserAction5 CAROUSEL JSON returned from RASA call</button> </p>
+<!-- THE FOLLOWING 3 BUTTONS WORK -->
 <p><button type="submit" onclick="CarouselSetSlot()">Test Rasa REST call CarouselSetSlot set slot c</button> </p>
 <p><button type="submit" onclick="CarouselExecAction()">Test Rasa REST call CarouselExecAction execute action</button> </p>
 <p><button type="submit" onclick="CarouselToFM()">Test Rasa REST call CarouselToFM() send payload to FM Feb 22b</button> </p>
 <p> <b>Rating:</b> 
 <p> <b>Genres:</b> 
+<!-- display genre list -->  
 {% for genre in genre_list %}
-<!--<a href="javascript:closeWindow();">{{ genre.genre_listname}}</a>-->
-<!--<button type="submit" onclick="UserAction()">{{ genre.genre_listname}}</button>-->
-<a id="mylink" href="{{url_for('homepage', type=genre.genre_listname,category = 'genre')}}">{{ genre.genre_listname}}</a>{% if not loop.last %}, {% endif %}
+<a href="javascript:closeWindow();">{{ genre.genre_listname}}</a>{% if not loop.last %}, {% endif %}
+<!-- <a id="mylink" href="{{url_for('homepage', type=genre.genre_listname,category = 'genre')}}">{{ genre.genre_listname}}</a>{% if not loop.last %}, {% endif %} -->
 {% endfor %}
 </p>
 <p> <b>Directors:</b> 
@@ -350,7 +464,8 @@ function CarouselExecActionRT() {
 </p>
 <p> <b>Stars:</b> 
 {% for actor in actor_list %}
-<a id="mylink3" href="{{url_for('homepage', type=actor.actor_listname,category = 'actor')}}">{{ actor.actor_listname}}</a>{% if not loop.last %}, {% endif %}
+<a href="javascript:showCarousel('{{ actor.actor_listname}}');">{{ actor.actor_listname}}</a>{% if not loop.last %}, {% endif %}
+<!-- <a id="mylink3" href="{{url_for('homepage', type=actor.actor_listname,category = 'actor')}}">{{ actor.actor_listname}}</a>{% if not loop.last %}, {% endif %} -->
 {% endfor %}
 </p>
 <p></p>
