@@ -33,6 +33,8 @@ import pickle
 # import classes for exchanging data with dynamic web serving code
 from webview_classes import movie_info
 from webview_classes import payload_item
+from webview_classes import carousel_tracker
+
 
 # switch to change the debug level - change to ERROR for faster runs
 logging.getLogger().setLevel(logging.WARNING)
@@ -74,7 +76,7 @@ big_files = config['general']['big_files']
 wv_URL = config['general']['wv_url']
 image_path_index = config['general']['image_path_index']
 placeholder_image = config['general']['placeholder_image']
-carousel_size = config['general']['carousel_size']
+carousel_size_per_display = config['general']['carousel_size_per_display']
 jahr_zero = config['general']['jahr_zero']
 # detail_mode:
 #    type: categorical
@@ -177,7 +179,10 @@ image_path_dict["small"] = 'https://image.tmdb.org/t/p/w92' # 92x138
 image_path_dict["medium"] = 'https://image.tmdb.org/t/p/w342' # 342x513
 image_path_dict["big"] = 'https://image.tmdb.org/t/p/w500' # 500x750
 
-
+persistent_carousel_dict = {}
+# switch of whether there is an active carousel
+carousel_active = False
+carousel_size = 0
 
 media_dict = {}
 media_dict['poster'] = 'image'
@@ -1192,7 +1197,6 @@ def get_carousel_payload(key_slot, key_value):
     logging.warning("carousel key_value is"+str(key_value))
     # movie_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'].tolist()
     movie_id_df = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id']
-    # pd.merge(df1, df2, left_on='id', right_on='id1', how='left').drop('id1', axis=1)
     # join movie_id df with movie df to get year and sort increasing by year
     movie_id_df_year = pd.merge(movie_id_df,df_dict['movies'],left_on='movie_id',right_on='id',how='left').sort_values(['year'])[['movie_id','year']]
     # take only movies above the base year
@@ -1213,6 +1217,7 @@ def get_carousel_payload(key_slot, key_value):
      
     carousel_dict["cast_picture_url"] = cast_picture_url_list[0]
     # key_slot_prepped = (df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))
+    carousel_size = len(movie_id_list)
     for movie_id_value in movie_id_list:
         movie_carousel_dict = {}
         #logging.warning("carousel movie_id is"+str(movie_id_value))
@@ -1235,8 +1240,97 @@ def get_carousel_payload(key_slot, key_value):
         #logging.warning("carousel poster_path_list is"+str(poster_path_list))
         movie_carousel_dict["poster_path"] = image_path_dict[image_path_index]+poster_path_list[0]
         carousel_dict["movie_list"].append(movie_carousel_dict.copy())
-    #carousel_dict["cast_picture_url"] = 
-    return(carousel_dict)
+    # preserver the carousel_dict to show left and right 
+    # global persistent_carousel_dict = carousel_dict
+    return(carousel_dict,carousel_size)
+    
+def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
+    ''' build the required JSON as a string then use ast.literal_eval(s) to convert to Python object suitable for  dispatcher.utter_custom_json'''
+    # output_string = prefix_string+<cell_string>+<between_cell_string>+suffix_string
+    prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","elements":['
+    '''
+    cell_string_b =  '{"title":main_title[0],
+                           "image_url":img[0],
+                           "subtitle":sub_title[0],
+                           "buttons":[
+                          {
+                           "type":"web_url",
+                           "url":target_URL,
+                           "title":"Movie Details",
+                           "messenger_extensions": "true",
+                           "webview_height_ratio": "tall"
+                          }]}'
+    '''                      
+    target_URL = wv_URL
+    between_cell_string = ','
+    suffix_string = ']}}}'
+    cell_string = ''
+    for i in range(start_index, end_index):
+        cell_string_title = '{ "title":"'+carousel_payload["movie_list"][i]["original_title"]+'('+carousel_payload["movie_list"][i]["year"]+')",'
+        cell_string_image = '"image_url":"'+carousel_payload["movie_list"][i]["poster_path"]+'",'
+        if len(carousel_payload["movie_list"][i]['character']) == 0:
+            sub_title_str = "not named"
+        else: 
+            sub_title_str = str(carousel_payload["movie_list"][i]["character"]).strip('[]')
+        cell_string_subtitle = '"subtitle":"'+sub_title_str+'",'
+        cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}]}'
+        cell_string = cell_string+cell_string_title+cell_string_image+cell_string_subtitle+cell_mid_boilerplate
+        if i < end_index:
+            cell_string = cell_string+','
+        logging.warning("BUILD-CAROUSEL-JSON cell_string "+cell_string)
+    overall_string = prefix_string +cell_string+suffix_string
+    logging.warning("BUILD-CAROUSEL-JSON overall_string "+overall_string)
+    payload_for_FM = ast.literal_eval(overall_string)         
+        
+    
+    '''
+    main_title_str = movie_dict["original_title"]+"("+movie_dict["year"]+")"
+            main_title.append(main_title_str)
+            if len(movie_dict["character"]) == 0:
+                sub_title_str = "not named"
+            else: 
+                # str(my_list3).strip('[]')
+                sub_title_str = str(movie_dict["character"]).strip('[]')
+            sub_title.append(sub_title_str)
+            img.append(movie_dict["poster_path"])
+    
+    
+    one_cell_string = '{
+                   "attachment":{
+                     "type":"template",
+                     "payload":{
+                       "template_type":"generic",
+                       "elements":[
+                          {'
+                           "title":main_title[0],
+                           "image_url":img[0],
+                           "subtitle":sub_title[0],
+                           "buttons":[
+                          {
+                           "type":"web_url",
+                           "url":target_URL,
+                           "title":"Movie Details",
+                           "messenger_extensions": "true",
+                           "webview_height_ratio": "tall"
+                          }]},
+                          {
+                           "title":main_title[1],
+                           "image_url":img[1],
+                           "subtitle":sub_title[1],
+                           "buttons":[
+                          {
+                           "type":"web_url",
+                           "url":target_URL,
+                           "title":"Movie Details",
+                           "messenger_extensions": "true",
+                           "webview_height_ratio": "tall"
+                          }]}                            
+                        ]      
+                      }
+                    }
+                  }
+                  '''
+    return(payload_for_FM)
     
 class action_show_carousel(Action):
    """special demo action to show carousel with details picked from webview click"""
@@ -1251,15 +1345,34 @@ class action_show_carousel(Action):
     # for slot in 
     logging.warning("carousel condition_col is"+str(condition_col))
     logging.warning("carousel raw_key is"+str(raw_key))
-    carousel_payload = get_carousel_payload('cast_name',raw_key[0])
+    carousel_payload, carousel_size = get_carousel_payload('cast_name',raw_key[0])
+    left_index = 0
+    if carousel_size <= carousel_size_per_display:
+        right_index = carousel_size
+    else:
+        right_index = carousel_size_per_display
+    current_carousel = carousel_tracker(left_index,right_index,carousel_size,carousel_payload)
     ''' given an actor, show a carousel with the posters for all the actor's movies, in text the movie title, date, character name
     '''
+    message6 = build_carousel_json(carousel_payload, carousel_size,0,2)
     main_title = []
     sub_title = []
     poster_path = []
     img = []
     try:
-        slot_dict = tracker.current_slot_values()
+        if len(carousel_payload["movie_list"]) > 0:
+            slot_dict = tracker.current_slot_values()
+            dispatcher.utter_custom_json(message6)
+        else:
+            dispatcher.utter_message("COMMENT - empty - no carousel")
+    except:
+         if debug_on:
+            raise
+         dispatcher.utter_message("carousel failed - please try another query")
+    dispatcher.utter_message("COMMENT - leaving carousel")
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+
+'''
         for slot in slot_dict:
             logging.warning("CAROUSEL slot is "+str(slot)+" "+str(slot_dict[slot]))
         for movie_dict in carousel_payload["movie_list"]:
@@ -1316,18 +1429,7 @@ class action_show_carousel(Action):
                       }
                     }
                   }
-      
-            dispatcher.utter_custom_json(message6)
-            dispatcher.utter_message("COMMENT - past posting to FM Feb 17")
-        else:
-            dispatcher.utter_message("COMMENT - empty - no carousel")
-    except:
-         if debug_on:
-            raise
-         dispatcher.utter_message("carousel failed - please try another query")
-    dispatcher.utter_message("COMMENT - leaving carousel")
-    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
-
+'''
       
 class action_show_details(Action):
    """special demo action to show canned web page - TODO provide a less hacky way to do this"""

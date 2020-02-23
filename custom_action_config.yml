@@ -18,7 +18,7 @@ general:
    default_rank_col: original_title
    max_qr: 13
    max_qr_per_row: 3
-   carousel_size: 2
+   carousel_size_per_display: 2
    jahr_zero: 1930
    save_files: False # switch for whether to serialize dataframes
    saved_files: True #switch for whether to use serialized dataframes

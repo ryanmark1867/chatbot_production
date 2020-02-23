@@ -35,3 +35,11 @@ class payload_item:
         self.display_type = display_type # how it gets shown: text, link, image
         self.return_type = return_type # where action occurs if this item is selected: fm (close wv and return payload back to Facebook Messenger), wv (stay in wv and take action there)
         self.return_payload = return_payload # what gets sent back if this display item gets selected
+        
+class carousel_tracker:
+    ''' object that maintains persistent information about carousel '''
+    def __init__(self,before_movie_index,after_movie_index,carousel_size, carousel_dict):
+        self.before_movie_index = before_movie_index
+        self.after_movie_index = after_movie_index
+        self.carousel_size = carousel_size
+        self.carousel_dict = carousel_dict
