@@ -74,6 +74,8 @@ big_files = config['general']['big_files']
 wv_URL = config['general']['wv_url']
 image_path_index = config['general']['image_path_index']
 placeholder_image = config['general']['placeholder_image']
+carousel_size = config['general']['carousel_size']
+jahr_zero = config['general']['jahr_zero']
 # detail_mode:
 #    type: categorical
 #    initial_value: text_list
@@ -1188,7 +1190,16 @@ def get_carousel_payload(key_slot, key_value):
     # only profile path uniquely identifies individual - cast_id doesn't
     logging.warning("carousel key_slot is"+str(key_slot))
     logging.warning("carousel key_value is"+str(key_value))
-    movie_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'].tolist()
+    # movie_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'].tolist()
+    movie_id_df = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id']
+    # pd.merge(df1, df2, left_on='id', right_on='id1', how='left').drop('id1', axis=1)
+    # join movie_id df with movie df to get year and sort increasing by year
+    movie_id_df_year = pd.merge(movie_id_df,df_dict['movies'],left_on='movie_id',right_on='id',how='left').sort_values(['year'])[['movie_id','year']]
+    # take only movies above the base year
+    movie_id_list = movie_id_df_year[(pd.to_numeric(movie_id_df_year['year']) > jahr_zero)]['movie_id'].tolist()
+    # get list of related movie_ids sorted by release year
+    # movie_id_df = (df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'year']).sort_values(['year'])
+    # movie_id_list = (movie_id_df.drop('year',axis=1)).tolist()
     cast_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['cast_id'].tolist()
     # credits_cast is ['cast_id', 'character', 'credit_id', 'gender', 'id', 'cast_name', 'order', 'profile_path', 'movie_id']
     cast_pict = True
