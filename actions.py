@@ -1276,19 +1276,6 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
     ''' build the required JSON as a string then use ast.literal_eval(s) to convert to Python object suitable for  dispatcher.utter_custom_json'''
     # output_string = prefix_string+<cell_string>+<between_cell_string>+suffix_string
     prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","elements":['
-    '''
-    cell_string_b =  '{"title":main_title[0],
-                           "image_url":img[0],
-                           "subtitle":sub_title[0],
-                           "buttons":[
-                          {
-                           "type":"web_url",
-                           "url":target_URL,
-                           "title":"Movie Details",
-                           "messenger_extensions": "true",
-                           "webview_height_ratio": "tall"
-                          }]}'
-    '''                      
     target_URL = wv_URL
     between_cell_string = ','
     suffix_string = ']}}}'
@@ -1359,6 +1346,15 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
                   }
                   '''
     return(payload_for_FM)
+
+class action_scroll_carousel(Action):
+   """special demo action to scroll carousel that has already been displayed by click on webview page"""
+   def name(self) -> Text:
+      return "action_scroll_carousel"
+   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    dispatcher.utter_message("COMMENT - leaving carousel")
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+
     
 class action_show_carousel(Action):
    """special demo action to show carousel with details picked from webview click"""

@@ -19,6 +19,12 @@
 - carousel command for [Rutger Hauer](cast_name)
 - carousel command for [Sean Ryan](cast_name)
 
+## intent:scroll_carousel
+- scroll command for [Harrison Ford](cast_name)
+- scroll command for [John Wayne](cast_name)
+- scroll command for [Rutger Hauer](cast_name)
+- scroll command for [Sean Ryan](cast_name)
+
 ## intent: list_category
 - list [genres](category:genre)
 - list [Genres](category:genre)

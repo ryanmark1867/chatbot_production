@@ -13,6 +13,12 @@
 	- action_show_carousel
 
 ## New Story
+* scroll_carousel{"cast_name":"Harrison Ford"}
+	- slot{"cast_name":"Harrison Ford"}
+	- action_scroll_carousel
+
+
+## New Story
 * show_details{"movie":"Blade Runner"}
 	- slot{"movie":"Blade Runner"}
 	- action_show_details
