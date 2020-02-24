@@ -388,6 +388,11 @@ df_dict['movies']['year'] = df_dict['movies']['release_date'].str[:4]
 # deal with NaN values that mess up some MVP queries
 df_dict['movies']['year'] = df_dict['movies']['year'].fillna('1990')
 
+
+
+
+
+
 # define distinct dataframes for each profession in the credits_crew df
 def create_crew_by_job_dfs(credits_df,df_dict):
    ''' create distinct tables for each job in credits_crew '''
@@ -446,6 +451,19 @@ data = {  "greeting":
 # csv_file_name = 'C:\personal\chatbot_july_2019\df_to_csv\movies_genres.csv'
 # logging.warning("about to write genre to csv")
 # df_dict['movies_genres'].to_csv(csv_file_name)
+
+logging.warning("BEFORE credits_cast col names "+str(list(df_dict['credits_cast'].columns.values)))
+logging.warning("BEFORE movies col names "+str(list(df_dict['movies'].columns.values)))
+
+df_dict['credits_cast']['movie_id2'] = df_dict['credits_cast']['movie_id']
+df_dict['movies']['id2'] = df_dict['movies']['id']
+
+df_dict['credits_cast'] = df_dict['credits_cast'].set_index('movie_id2')
+df_dict['credits_cast'] = df_dict['credits_cast'].sort_index()
+logging.warning("AFTER credits_cast col names "+str(list(df_dict['credits_cast'].columns.values)))
+df_dict['movies'] = df_dict['movies'].set_index('id2')
+df_dict['movies'] = df_dict['movies'].sort_index()
+logging.warning("AFTER movies col names "+str(list(df_dict['movies'].columns.values)))
 
 def get_image_path(image_file):
    # TODO replace with code that gets the actual base path
@@ -1196,21 +1214,26 @@ def get_carousel_payload(key_slot, key_value):
     logging.warning("carousel key_slot is"+str(key_slot))
     logging.warning("carousel key_value is"+str(key_value))
     # movie_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'].tolist()
-    movie_id_df = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id']
+    logging.warning("TIMING before cast_name search")
+    movie_id_df = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value][['movie_id','profile_path']]
+    cast_picture_url_list = movie_id_df['profile_path'].tolist()
     # join movie_id df with movie df to get year and sort increasing by year
-    movie_id_df_year = pd.merge(movie_id_df,df_dict['movies'],left_on='movie_id',right_on='id',how='left').sort_values(['year'])[['movie_id','year']]
+    logging.warning("TIMING before movie_id movie merge")
+    movie_id_df_year = pd.merge(movie_id_df,df_dict['movies'],left_index=True, right_index=True,how='left').sort_values(['year'])[['movie_id','year']]
+    # movie_id_df_year = movie_id_df.join(df_dict['movies']).sort_values(['year'])[['movie_id','year']]
     # take only movies above the base year
     movie_id_list = movie_id_df_year[(pd.to_numeric(movie_id_df_year['year']) > jahr_zero)]['movie_id'].tolist()
     # get list of related movie_ids sorted by release year
     # movie_id_df = (df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['movie_id'year']).sort_values(['year'])
     # movie_id_list = (movie_id_df.drop('year',axis=1)).tolist()
-    cast_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['cast_id'].tolist()
+    # cast_id_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['cast_id'].tolist()
     # credits_cast is ['cast_id', 'character', 'credit_id', 'gender', 'id', 'cast_name', 'order', 'profile_path', 'movie_id']
     cast_pict = True
     carousel_dict = {}
     carousel_dict["cast_name"] = key_value
     carousel_dict["movie_list"] = []
-    cast_picture_url_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['profile_path'].tolist()
+    logging.warning("TIMING before cast_picture search merge")
+    #cast_picture_url_list = df_dict['credits_cast'][(df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['profile_path'].tolist()
     if len(cast_picture_url_list) <= 0:
         cast_picture_url_list.append(placeholder_image)
         cast_pict = False
@@ -1218,16 +1241,21 @@ def get_carousel_payload(key_slot, key_value):
     carousel_dict["cast_picture_url"] = cast_picture_url_list[0]
     # key_slot_prepped = (df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))
     carousel_size = len(movie_id_list)
+    logging.warning("TIMING before payload build loop")
     for movie_id_value in movie_id_list:
         movie_carousel_dict = {}
         #logging.warning("carousel movie_id is"+str(movie_id_value))
-        original_title_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['original_title'].tolist()
+        # original_title_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['original_title'].tolist()
+        original_title_df = df_dict['movies'][df_dict['movies']['id']==movie_id_value][['original_title','year','poster_path']]
+        original_title_list = original_title_df['original_title'].tolist()
+        year_list = original_title_df['year'].tolist()
+        poster_path_list = original_title_df['poster_path'].tolist()
         # check for corrupted entries and skip
         if len(original_title_list) <= 0:
             continue
         #logging.warning("carousel poster_path_list is"+str(original_title_list))
         movie_carousel_dict["original_title"] = original_title_list[0]
-        year_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['year'].tolist()
+        # year_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['year'].tolist()
         movie_carousel_dict["year"] = year_list[0]
         # movie_id_list = df_dict['movies'][(df_dict['movies'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['id'].tolist()
         if cast_pict:
@@ -1235,8 +1263,8 @@ def get_carousel_payload(key_slot, key_value):
             movie_carousel_dict["character"] = df_dict['credits_cast'][(df_dict['credits_cast']['movie_id']==movie_id_value) & (df_dict['credits_cast']['profile_path']==cast_picture_url_list[0])]['character'].tolist()
         else:
             movie_carousel_dict["character"] = df_dict['credits_cast'][(df_dict['credits_cast']['movie_id']==movie_id_value) & ((df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))==key_value)]['character'].tolist()
-        logging.warning("carousel character_list is"+str(movie_carousel_dict["character"]))
-        poster_path_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['poster_path'].tolist()
+        #logging.warning("carousel character_list is"+str(movie_carousel_dict["character"]))
+        # poster_path_list = df_dict['movies'][df_dict['movies']['id']==movie_id_value]['poster_path'].tolist()
         #logging.warning("carousel poster_path_list is"+str(poster_path_list))
         movie_carousel_dict["poster_path"] = image_path_dict[image_path_index]+poster_path_list[0]
         carousel_dict["movie_list"].append(movie_carousel_dict.copy())
@@ -1354,6 +1382,7 @@ class action_show_carousel(Action):
     current_carousel = carousel_tracker(left_index,right_index,carousel_size,carousel_payload)
     ''' given an actor, show a carousel with the posters for all the actor's movies, in text the movie title, date, character name
     '''
+    logging.warning("TIMING about to build carousel")
     message6 = build_carousel_json(carousel_payload, carousel_size,0,2)
     main_title = []
     sub_title = []
