@@ -36,19 +36,17 @@ from webview_classes import payload_item
 from webview_classes import carousel_tracker
 
 
-# switch to change the debug level - change to ERROR for faster runs
-logging.getLogger().setLevel(logging.WARNING)
-logging.warning("logging check")
+
 
 # block to read in key parameters
 
 # get current working directory
 current_path = os.getcwd()
-logging.warning("current directory is: "+current_path)
+print("current directory is: "+current_path)
 directory_symbol = "\\"
 
 path_to_yaml = current_path+directory_symbol+"custom_action_config.yml"
-logging.warning("path_to_yaml "+path_to_yaml)
+print("path_to_yaml "+path_to_yaml)
 try: 
     with open (path_to_yaml, 'r') as file:
        config = yaml.safe_load(file)
@@ -78,12 +76,34 @@ image_path_index = config['general']['image_path_index']
 placeholder_image = config['general']['placeholder_image']
 carousel_size_per_display = config['general']['carousel_size_per_display']
 jahr_zero = config['general']['jahr_zero']
+logging_level = config['general']['logging_level']
 # detail_mode:
 #    type: categorical
 #    initial_value: text_list
 #    values:
 #    - text_list
 #    - details
+
+# switch to change the debug level - change to ERROR for faster runs
+#logging.getLogger().setLevel(logging.WARNING)
+#
+#logging = logging.getLogger('myLogger')
+#level = logging.getLevelName('INFO')
+#Log.setLevel(level)
+logging_level_set = logging.WARNING
+if logging_level == 'WARNING':
+    logging_level_set = logging.WARNING
+if logging_level == 'ERROR':
+    logging_level_set = logging.ERROR
+if logging_level == 'DEBUG':
+    logging_level_set = logging.DEBUG
+if logging_level == 'INFO':
+    logging_level_set = logging.INFO   
+logging.getLogger().setLevel(logging_level_set)
+logging.warning("logging check")
+
+
+
 display_mode = "text_list"
 logging.warning("display_mode 1 is: "+display_mode)
 wv_payload = {}
@@ -460,10 +480,10 @@ df_dict['movies']['id2'] = df_dict['movies']['id']
 
 df_dict['credits_cast'] = df_dict['credits_cast'].set_index('movie_id2')
 df_dict['credits_cast'] = df_dict['credits_cast'].sort_index()
-logging.warning("AFTER credits_cast col names "+str(list(df_dict['credits_cast'].columns.values)))
+print("AFTER credits_cast col names "+str(list(df_dict['credits_cast'].columns.values)))
 df_dict['movies'] = df_dict['movies'].set_index('id2')
 df_dict['movies'] = df_dict['movies'].sort_index()
-logging.warning("AFTER movies col names "+str(list(df_dict['movies'].columns.values)))
+print("AFTER movies col names "+str(list(df_dict['movies'].columns.values)))
 
 def get_image_path(image_file):
    # TODO replace with code that gets the actual base path
