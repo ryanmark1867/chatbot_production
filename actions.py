@@ -1291,7 +1291,7 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
         no_before = True
     else:
         no_before = False
-    if end_index >= carousel_size:
+    if end_index <= carousel_size:
         no_next = False
     else:
         no_next = True
@@ -1305,13 +1305,15 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
             sub_title_str = str(carousel_payload["movie_list"][i]["character"]).strip('[]')
         cell_string_subtitle = '"subtitle":"'+sub_title_str+'",'
         # deal with the prev/next button
+        logging.warning("BUILD-CAROUSEL-JSON start_index i is "+str(i))
+        logging.warning("BUILD-CAROUSEL-JSON start_index "+str(start_index)+"no_before"+str(no_before)+" end_index "+str(end_index)+" no_next "+str(no_next))
         if i == start_index and no_before == False:
-            extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(int(start_index)-carousel_size_per_display)+' end '+str(int(start_index) - 1)
+            extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(int(start_index)-carousel_size_per_display)+' end '+str(int(start_index))
             logging.warning("BUILD-CAROUSEL-JSON prev extra_button_string_payload "+extra_button_string_payload)
             extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Previous"}'
         else:
-            if i == end_index and no_next == False:
-                extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+end_index+' end '+str(int(end_index)+carousel_size_per_display - 1)
+            if i == (end_index-1) and no_next == False:
+                extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(end_index)+' end '+str(int(end_index)+carousel_size_per_display)
                 logging.warning("BUILD-CAROUSEL-JSON next extra_button_string_payload "+extra_button_string_payload)
                 extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Next"}'
         #cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}]}'
@@ -1379,7 +1381,22 @@ class action_scroll_carousel(Action):
    def name(self) -> Text:
       return "action_scroll_carousel"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    dispatcher.utter_message("COMMENT - leaving carousel")
+    logging.warning("COMMENT - ACTION_SCROLL_CAROUSEL")
+    scroll_start = tracker.get_slot('scroll_start')
+    scroll_end = tracker.get_slot('scroll_end')
+    logging.warning("scroll_start "+str(scroll_start))
+    logging.warning("scroll_end "+str(scroll_end))
+    message6 = build_carousel_json(carousel_payload, carousel_size,int(scroll_start),int(scroll_end))
+ 
+    try:
+        if len(carousel_payload["movie_list"]) > 0:
+            dispatcher.utter_custom_json(message6)
+        else:
+            dispatcher.utter_message("COMMENT - empty - no carousel")
+    except:
+         if debug_on:
+            raise
+         dispatcher.utter_message("carousel failed - please try another query")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
     
@@ -1396,6 +1413,8 @@ class action_show_carousel(Action):
     # for slot in 
     logging.warning("carousel condition_col is"+str(condition_col))
     logging.warning("carousel raw_key is"+str(raw_key))
+    global carousel_payload
+    global carousel_size
     carousel_payload, carousel_size = get_carousel_payload('cast_name',raw_key[0])
     left_index = 0
     if carousel_size <= carousel_size_per_display:
@@ -1421,7 +1440,6 @@ class action_show_carousel(Action):
          if debug_on:
             raise
          dispatcher.utter_message("carousel failed - please try another query")
-    dispatcher.utter_message("COMMENT - leaving carousel")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 '''
