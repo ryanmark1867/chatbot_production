@@ -184,7 +184,7 @@ function UserAction5() {
 <script>
 function UserAction6() {
     var xhttp = new XMLHttpRequest();
-	let json_val = JSON.stringify({"event":"slot","name":"ranked_col","value":["movies"]});
+	let json_val = JSON.stringify({"event":"slot","name":"ranked_col","value":["original_title"]});
 	xhttp.open("POST",'https://karmaai.ngrok.io/conversations/default/tracker/events?include_events=NONE', true);
     xhttp.setRequestHeader('Content-type', 'application/json');
     xhttp.send(json_val);
@@ -313,7 +313,7 @@ function showCarouselExecAction() {
 			//2.  get the subset of the JS object that is needed for the payload to FM
 			//window.js_payload_obj = js_json.tracker.events[3].data.custom;
 			//3. get the JS string version of the JS object
-			var js_payload_str = JSON.stringify(js_json.tracker.events[3].data.custom);
+			var js_payload_str = JSON.stringify(js_json.tracker.events[4].data.custom);
 
 			//4. define skeleton of the FM payload outside of the payload returned by the Rasa call
 			var skeleton_json_str = '{"recipient": {"id": "2557075157744451"},"message": ';
@@ -449,7 +449,7 @@ function showCarouselclosepage(actor_name) {
 <p><button type="submit" onclick="UserAction3() u">Test Rasa REST call to trigger execute 3 UserAction3</button> </p>
 <p><button type="submit" onclick="UserAction">Test Rasa REST call UserAction </button> </p>
 <p><button type="submit" onclick="UserAction2()">Test FM REST call UserAction2</button> </p>
-<p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p>
+<p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p> -->
 <p><button type="submit" onclick="UserAction5()">Test FM REST call UserAction5 CAROUSEL JSON returned from RASA call</button> </p>
 <!-- THE FOLLOWING 3 BUTTONS WORK -->
 <!--

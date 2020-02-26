@@ -617,13 +617,16 @@ def execute_query (condition_col, condition_table, condition_value, condition_op
 def get_table(column_list,schema):
    """ return the table that contains the given column in the given schema dictionary"""
    table_dict = {}
+   logging.warning("FEB 25 column_list in get_table is: "+str(column_list))
+   # logging.warning("FEB 25 column_list in schema is: "+str(column_list))
    for table in schema:
-      #logging.warning("get_table table is: "+str(table))
+      #logging.warning("FEB 25 get_table table is: "+str(table))
       for column in column_list:
-         #logging.warning("get_table column is: "+str(column))
+         #logging.warning("FEB 25 get_table column is: "+str(column))
          if column in schema[table]:
-            #logging.warning("get_table got table "+str(table)+" for column: "+str(column))
+            logging.warning("FEB 25 get_table got table "+str(table)+" for column: "+str(column))
             table_dict[column] = table
+   logging.warning("FEB 25 table_dict is"+str(table_dict))
    return(table_dict)
 
 def get_condition_columns(slot_dict):
@@ -910,7 +913,7 @@ def generate_result(slot_dict,condition_dict,condition_table,ranked_table,dispat
                   if len(sub_condition_df_dict[sub_condition]) == 0:
                      # if no exact match try for fuzzy match
                      sub_condition_df_dict[sub_condition] = df_dict[condition_table[condition]][(df_dict[condition_table[condition]][condition].apply(lambda x: prep_compare(x))).str.contains(str(prep_compare(sub_condition)))][condition_columns_to_pull]
-                     #poster_file = df_dict['movies'][(df_dict['movies']['original_title'].str.lower()).str.contains(slot_dict['movie'].lower())]['poster_path']
+                     #poster_file = df_dict['movies'][(df_dict['movies']['original_title'].str.lower()).str.contains(slot_dict['original_title'].lower())]['poster_path']
 
                
                   logging.warning("sub_condition_df_dict[sub_condition] len is "+str(len(sub_condition_df_dict[sub_condition])))
@@ -1087,7 +1090,7 @@ class action_condition_by_movie_ordered(Action):
       logging.warning("COMMENT: end of transmission FM")
       
       #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
-      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
 
@@ -1114,10 +1117,12 @@ class action_condition_by_movie(Action):
             # get_table expects a list of columns as its first arg, so just take keys from condition_dict dictionary
             logging.warning("ABOUT TO GET CONDITION TABLE ")
             condition_table = get_table(list(condition_dict.keys()),movie_schema)
+            logging.warning("FEB 25 condition_dict before is "+str(condition_dict))
+            logging.warning("FEB 25 condition_table before is "+str(condition_table))
             logging.warning("ABOUT TO GET RANKED TABLE ")
             ranked_table = get_table(slot_dict["ranked_col"],movie_schema)
-            logging.warning("condition_dict is "+str(condition_dict))
-            logging.warning("condition_table is "+str(condition_table))
+            logging.warning("FEB 25 condition_dict after is "+str(condition_dict))
+            logging.warning("FEB 25 condition_table after is "+str(condition_table))
             logging.warning("ranked_cod is "+str(slot_dict["ranked_col"]))
             logging.warning("ranked_table is "+str(ranked_table))
             # call major logic to get results - keep this common for all actions that require filtering and joining of tables
@@ -1138,7 +1143,7 @@ class action_condition_by_movie(Action):
       
         # TODO more elegant way to clear out used slots
         #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
-        return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None), SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+        return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None), SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
 class action_clear_slots(Action):
@@ -1147,7 +1152,7 @@ class action_clear_slots(Action):
       return "action_clear_slots"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
       logging.warning("IN CLEAR SLOTS")
-      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
      
       '''
@@ -1242,6 +1247,7 @@ def get_carousel_payload(key_slot, key_value):
     # key_slot_prepped = (df_dict['credits_cast'][key_slot].apply(lambda x: prep_compare(x)))
     carousel_size = len(movie_id_list)
     logging.warning("TIMING before payload build loop")
+    logging.warning("FEB 25 carousel_size is "+str(carousel_size))
     for movie_id_value in movie_id_list:
         movie_carousel_dict = {}
         #logging.warning("carousel movie_id is"+str(movie_id_value))
@@ -1280,6 +1286,16 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
     between_cell_string = ','
     suffix_string = ']}}}'
     cell_string = ''
+    # set flags for whether there will be forward and back buttons
+    if start_index == 0:
+        no_before = True
+    else:
+        no_before = False
+    if end_index >= carousel_size:
+        no_next = False
+    else:
+        no_next = True
+    extra_button_string = " "
     for i in range(start_index, end_index):
         cell_string_title = '{ "title":"'+carousel_payload["movie_list"][i]["original_title"]+'('+carousel_payload["movie_list"][i]["year"]+')",'
         cell_string_image = '"image_url":"'+carousel_payload["movie_list"][i]["poster_path"]+'",'
@@ -1288,7 +1304,18 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
         else: 
             sub_title_str = str(carousel_payload["movie_list"][i]["character"]).strip('[]')
         cell_string_subtitle = '"subtitle":"'+sub_title_str+'",'
-        cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}]}'
+        # deal with the prev/next button
+        if i == start_index and no_before == False:
+            extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(int(start_index)-carousel_size_per_display)+' end '+str(int(start_index) - 1)
+            logging.warning("BUILD-CAROUSEL-JSON prev extra_button_string_payload "+extra_button_string_payload)
+            extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Previous"}'
+        else:
+            if i == end_index and no_next == False:
+                extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+end_index+' end '+str(int(end_index)+carousel_size_per_display - 1)
+                logging.warning("BUILD-CAROUSEL-JSON next extra_button_string_payload "+extra_button_string_payload)
+                extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Next"}'
+        #cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}]}'
+        cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}'+extra_button_string+']}'
         cell_string = cell_string+cell_string_title+cell_string_image+cell_string_subtitle+cell_mid_boilerplate
         if i < end_index:
             cell_string = cell_string+','
@@ -1353,7 +1380,7 @@ class action_scroll_carousel(Action):
       return "action_scroll_carousel"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
     dispatcher.utter_message("COMMENT - leaving carousel")
-    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
     
 class action_show_carousel(Action):
@@ -1395,7 +1422,7 @@ class action_show_carousel(Action):
             raise
          dispatcher.utter_message("carousel failed - please try another query")
     dispatcher.utter_message("COMMENT - leaving carousel")
-    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 '''
         for slot in slot_dict:
@@ -1465,23 +1492,23 @@ class action_show_details(Action):
       tracker_value = tracker.get_latest_input_channel()
       logging.warning("IN ACTION SHOW DETAILS TRACKER_VALUE "+str(tracker_value))
       global wv_payload
-      raw_movie = tracker.get_slot('movie')
+      raw_movie = tracker.get_slot('original_title')
       logging.warning("raw_movie is "+str(raw_movie))
       slot_dict = {}
       slot_dict = tracker.current_slot_values()
       try:
-         if slot_dict["movie"] == "Ballroom Blitz":
+         if slot_dict['original_title'] == "Ballroom Blitz":
             img = "https://www.youtube.com/watch?v=gYnRmfgKAbg"
             logging.warning("ready Mick?")
          else:
-            logging.warning("not a video "+str(slot_dict['movie']))
+            logging.warning("not a video "+str(slot_dict['original_title']))
             # for compare ensure that lowercasing and removal of punctuation done
-            poster_file = df_dict['movies'][df_dict['movies']['original_title'].apply(lambda x: prep_compare(x)) == prep_compare(slot_dict['movie'])]['poster_path']
+            poster_file = df_dict['movies'][df_dict['movies']['original_title'].apply(lambda x: prep_compare(x)) == prep_compare(slot_dict['original_title'])]['poster_path']
             if len(poster_file) == 0:
-               logging.warning("trying fuzzy match for "+prep_compare(slot_dict['movie']))
+               logging.warning("trying fuzzy match for "+prep_compare(slot_dict['original_title']))
                # if no exact match try for fuzzy match
-               poster_file = df_dict['movies'][(df_dict['movies']['original_title'].apply(lambda x: prep_compare(x))).str.contains(prep_compare(slot_dict['movie']))]['poster_path']
-               #poster_file = df_dict['movies'][df_dict['movies']['original_title'].str.lower()==slot_dict['movie'].lower()]['poster_path']
+               poster_file = df_dict['movies'][(df_dict['movies']['original_title'].apply(lambda x: prep_compare(x))).str.contains(prep_compare(slot_dict['original_title']))]['poster_path']
+               #poster_file = df_dict['movies'][df_dict['movies']['original_title'].str.lower()==slot_dict['original_title'].lower()]['poster_path']
             logging.warning("poster_file is "+str(poster_file.iloc[0]))
             # TODO for test need URL of this form http://127.0.0.1:5000/rhIRbceoE9lR4veEXuwCC2wARtG.jpg
             #target_URL = "https://webviewfm.ngrok.io/"
@@ -1579,7 +1606,7 @@ class action_show_details(Action):
          dispatcher.utter_message("could not find media for show details - please try another query")
       logging.warning("COMMENT: end of transmission show details validated")
       #
-      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
 
@@ -1639,7 +1666,7 @@ class action_list_category(Action):
       # set the display mode to detailed so that the results are clickable
       logging.warning("display_mode 3 is: "+display_mode)
       display_mode = "details"
-      return[SlotSet('detail_mode','details'),SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+      return[SlotSet('detail_mode','details'),SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
 
@@ -1758,7 +1785,7 @@ class action_condition_by_media(Action):
       return "action_condition_by_media"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
       logging.warning("IN CONDITION BY MEDIA")
-      raw_movie = tracker.get_slot('movie')
+      raw_movie = tracker.get_slot('original_title')
       logging.warning("raw_movie is "+str(raw_movie))
       slot_dict = {}
       slot_dict = tracker.current_slot_values()
@@ -1766,21 +1793,21 @@ class action_condition_by_media(Action):
       # and code to find media file names and paths and render per media type
       # load the media type
       media_type = media_dict[slot_dict["media"]]
-      logging.warning("slot_dict['movie'] is "+str(slot_dict['movie']))
-      logging.warning("target is "+prep_compare(slot_dict['movie']))
+      logging.warning("slot_dict['original_title'] is "+str(slot_dict['original_title']))
+      logging.warning("target is "+prep_compare(slot_dict['original_title']))
       try:
-         if slot_dict["movie"] == "Ballroom Blitz":
+         if slot_dict['original_title'] == "Ballroom Blitz":
             img = "https://www.youtube.com/watch?v=gYnRmfgKAbg"
             logging.warning("ready Mick?")
          else:
-            logging.warning("not a video "+str(slot_dict['movie']))
+            logging.warning("not a video "+str(slot_dict['original_title']))
             # for compare ensure that lowercasing and removal of punctuation done
-            poster_file = df_dict['movies'][df_dict['movies']['original_title'].apply(lambda x: prep_compare(x)) == prep_compare(slot_dict['movie'])]['poster_path']
+            poster_file = df_dict['movies'][df_dict['movies']['original_title'].apply(lambda x: prep_compare(x)) == prep_compare(slot_dict['original_title'])]['poster_path']
             if len(poster_file) == 0:
-               logging.warning("trying fuzzy match for "+prep_compare(slot_dict['movie']))
+               logging.warning("trying fuzzy match for "+prep_compare(slot_dict['original_title']))
                # if no exact match try for fuzzy match
-               poster_file = df_dict['movies'][(df_dict['movies']['original_title'].apply(lambda x: prep_compare(x))).str.contains(prep_compare(slot_dict['movie']))]['poster_path']
-               #poster_file = df_dict['movies'][df_dict['movies']['original_title'].str.lower()==slot_dict['movie'].lower()]['poster_path']
+               poster_file = df_dict['movies'][(df_dict['movies']['original_title'].apply(lambda x: prep_compare(x))).str.contains(prep_compare(slot_dict['original_title']))]['poster_path']
+               #poster_file = df_dict['movies'][df_dict['movies']['original_title'].str.lower()==slot_dict['original_title'].lower()]['poster_path']
             logging.warning("poster_file is "+str(poster_file.iloc[0]))
             img = image_path+str(poster_file.iloc[0])
             img_small = image_path_dict["small"]+str(poster_file.iloc[0])
@@ -1788,12 +1815,12 @@ class action_condition_by_media(Action):
          logging.warning("img is "+str(img))
          logging.warning("latest_input_channel "+str(tracker.get_latest_input_channel()))
          logging.warning("media_type is "+str(media_type))
-         mess4_payload_plot = "plot for "+str(slot_dict['movie'])
-         mess4_payload_stars = "stars of "+str(slot_dict['movie'])
-         mess4_payload_director = "director of "+str(slot_dict['movie'])
-         mess4_payload_rating = "rating for "+str(slot_dict['movie'])
-         mess4_payload_stars = "actors in "+str(slot_dict['movie'])
-         mess4_payload_genre = "genre of "+str(slot_dict['movie'])
+         mess4_payload_plot = "plot for "+str(slot_dict['original_title'])
+         mess4_payload_stars = "stars of "+str(slot_dict['original_title'])
+         mess4_payload_director = "director of "+str(slot_dict['original_title'])
+         mess4_payload_rating = "rating for "+str(slot_dict['original_title'])
+         mess4_payload_stars = "actors in "+str(slot_dict['original_title'])
+         mess4_payload_genre = "genre of "+str(slot_dict['original_title'])
          # special incantation required to get a graphic to display - none of the 3 other half-baked recommendations worked
          if tracker.get_latest_input_channel() == 'facebook':
             message = {
@@ -1962,7 +1989,7 @@ class action_condition_by_media(Action):
                        "template_type":"generic",
                        "elements":[
                           {
-                           "title":str(slot_dict['movie']),
+                           "title":str(slot_dict['original_title']),
                            "image_url":img,
                            "subtitle":"Click below for more details",
                            "buttons":[
@@ -1981,7 +2008,7 @@ class action_condition_by_media(Action):
                               "title": "Genre"
                            }]},
                           {
-                           "title":str(slot_dict['movie']),
+                           "title":str(slot_dict['original_title']),
                            "image_url":img,
                            "subtitle":"Click below for more details2",
                            "buttons":[
@@ -2015,7 +2042,7 @@ class action_condition_by_media(Action):
          dispatcher.utter_message("could not find media - please try another query")
       logging.warning("COMMENT: end of transmission validated")
       #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("media",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
-      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('movie',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+      return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
 # set FM welcome screen text

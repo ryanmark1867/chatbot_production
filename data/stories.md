@@ -13,68 +13,69 @@
 	- action_show_carousel
 
 ## New Story
-* scroll_carousel{"cast_name":"Harrison Ford"}
+* scroll_carousel{"cast_name":"Harrison Ford","scroll_start":"0","scroll_end":"1"}
 	- slot{"cast_name":"Harrison Ford"}
+	- slot{"scroll_start":"0"}
+	- slot{"scroll_end":"1"}
 	- action_scroll_carousel
 
-
 ## New Story
-* show_details{"movie":"Blade Runner"}
-	- slot{"movie":"Blade Runner"}
+* show_details{"original_title":"Blade Runner"}
+	- slot{"original_title":"Blade Runner"}
 	- action_show_details
 
 ## New Story
-* condition_by_movie{"ranked_col":"movies","cast_name":"Jack Lemmon"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie{"ranked_col":"original_title","cast_name":"Jack Lemmon"}
+    - slot{"ranked_col":"original_title"}
     - slot{"cast_name":"Jack Lemmon"}
     - action_condition_by_movie
 
 
 ## New Story
-* condition_by_media{"media":"poster","movie":"Harry Meet Sally"}
+* condition_by_media{"media":"poster","original_title":"Harry Meet Sally"}
     - slot{"media":"poster"}
-    - slot{"movie":"Harry Meet Sally"}
+    - slot{"original_title":"Harry Meet Sally"}
     - action_condition_by_media
 
 ## New Story
-* condition_by_media{"media":"poster","movie":"Margaret's Museum"}
+* condition_by_media{"media":"poster","original_title":"Margaret's Museum"}
     - slot{"media":"poster"}
-    - slot{"movie":"Margaret's Museum"}
+    - slot{"original_title":"Margaret's Museum"}
     - action_condition_by_media
 
 
 
 ## New Story
-* condition_by_movie_ordered{"ranked_col":"movies","Director":"Woody Allen","rank_axis":"popularity"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie_ordered{"ranked_col":"original_title","Director":"Woody Allen","rank_axis":"popularity"}
+    - slot{"ranked_col":"original_title"}
     - slot{"Director":"Woody Allen"}
 	- slot{"rank_axis":"popularity"}
     - action_condition_by_movie_ordered
 
 ## New Story
-* condition_by_movie_ordered{"ranked_col":"movies","row_range":"99","genre":"Thriller"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie_ordered{"ranked_col":"original_title","row_range":"99","genre":"Thriller"}
+    - slot{"ranked_col":"original_title"}
     - slot{"row_range":"99"}
 	- slot{"genre":"Thriller"}
     - action_condition_by_movie_ordered
 
 ## New Story
-* condition_by_movie_ordered{"ranked_col":"movies","row_range":"99","genre":"Science Fiction"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie_ordered{"ranked_col":"original_title","row_range":"99","genre":"Science Fiction"}
+    - slot{"ranked_col":"original_title"}
     - slot{"row_range":"99"}
 	- slot{"genre":"Science Fiction"}
     - action_condition_by_movie_ordered
 
 ## New Story
-* condition_by_movie_ordered{"ranked_col":"movies","year":"1996","rank_axis":"popularity"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie_ordered{"ranked_col":"original_title","year":"1996","rank_axis":"popularity"}
+    - slot{"ranked_col":"original_title"}
     - slot{"year":"1996"}
 	- slot{"rank_axis":"popularity"}
     - action_condition_by_movie_ordered
 
 ## New Story
-* condition_by_movie_ordered{"ranked_col":"movies","year":"1996"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie_ordered{"ranked_col":"original_title","year":"1996"}
+    - slot{"ranked_col":"original_title"}
     - slot{"year":"1996"}
     - action_condition_by_movie_ordered
 	
@@ -82,8 +83,8 @@
 
 
 ## New Story
-* condition_by_movie{"ranked_col":"movies","Director":"Woody Allen"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie{"ranked_col":"original_title","Director":"Woody Allen"}
+    - slot{"ranked_col":"original_title"}
     - slot{"Director":"Woody Allen"}
     - action_condition_by_movie
 
@@ -94,64 +95,64 @@
     - action_condition_by_movie
 
 # New Story
-* condition_by_movie{"ranked_col":"characters","ranked_col":"movies","cast_name":"Meryl Streep"}
+* condition_by_movie{"ranked_col":"characters","ranked_col":"original_title","cast_name":"Meryl Streep"}
     - slot{"ranked_col":"characters"}
-	- slot{"ranked_col":"movies"}
+	- slot{"ranked_col":"original_title"}
     - slot{"cast_name":"Meryl Streep"}
     - action_condition_by_movie
 
 ## New Story
-* condition_by_movie{"ranked_col":"cast_name","movie":"The Ten Commandments"}
-    - slot{"movie":"The Ten Commandments"}
+* condition_by_movie{"ranked_col":"cast_name","original_title":"The Ten Commandments"}
+    - slot{"original_title":"The Ten Commandments"}
     - slot{"ranked_col":"cast_name"}
     - action_condition_by_movie
 	
 ## New Story
-* condition_by_movie{"ranked_col":"plot","movie":"Taxi Driver"}
-    - slot{"movie":"Taxi Driver"}
+* condition_by_movie{"ranked_col":"plot","original_title":"Taxi Driver"}
+    - slot{"original_title":"Taxi Driver"}
     - slot{"ranked_col":"plot"}
     - action_condition_by_movie
 
 ## New Story
-* condition_by_movie{"ranked_col":"plot","movie":"Toy Story"}
-    - slot{"movie":"Toy Story"}
+* condition_by_movie{"ranked_col":"plot","original_title":"Toy Story"}
+    - slot{"original_title":"Toy Story"}
     - slot{"ranked_col":"plot"}
     - action_condition_by_movie
 
 ## New Story
-* condition_by_movie{"genre":"Comedy","keyword":"vampire","ranked_col":"movie"}
+* condition_by_movie{"genre":"Comedy","keyword":"vampire","ranked_col":"original_title"}
     - slot{"genre":"Comedy"}
     - slot{"keyword":"vampire"}
-	- slot{"ranked_col":"movie"}
+	- slot{"ranked_col":"original_title"}
     - action_condition_by_movie
 
 ## New Story
-* condition_by_movie{"movie":"Three Easy Pieces","ranked_col":"year"}
-    - slot{"movie":"Three Easy Pieces"}
+* condition_by_movie{"original_title":"Three Easy Pieces","ranked_col":"year"}
+    - slot{"original_title":"Three Easy Pieces"}
     - slot{"ranked_col":"year"}
     - action_condition_by_movie
 
 ## New Story
-* condition_by_movie{"ranked_col":"plot","movie":"The Exorcist"}
-    - slot{"movie":"The Exorcist"}
+* condition_by_movie{"ranked_col":"plot","original_title":"The Exorcist"}
+    - slot{"original_title":"The Exorcist"}
     - slot{"ranked_col":"plot"}
     - action_condition_by_movie
 	
 ## New Story
-* condition_by_movie{"ranked_col":"budget","movie":"Goldfinger"}
-    - slot{"movie":"Goldfinger"}
+* condition_by_movie{"ranked_col":"budget","original_title":"Goldfinger"}
+    - slot{"original_title":"Goldfinger"}
     - slot{"ranked_col":"budget"}
     - action_condition_by_movie
 
 ## New Story
-* condition_by_movie{"ranked_col":"rating","movie":"Captain America"}
+* condition_by_movie{"ranked_col":"rating","original_title":"Captain America"}
     - slot{"ranked_col":"rating"}
-    - slot{"movie":"Captain America"}
+    - slot{"original_title":"Captain America"}
     - action_condition_by_movie	
 
 ## New Story
-* condition_by_movie{"ranked_col":"movies","keyword":"midlife crisis"}
-    - slot{"ranked_col":"movies"}
+* condition_by_movie{"ranked_col":"original_title","keyword":"midlife crisis"}
+    - slot{"ranked_col":"original_title"}
     - slot{"keyword":"midlife crisis"}
     - action_condition_by_movie
 	

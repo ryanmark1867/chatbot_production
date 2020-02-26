@@ -26,6 +26,7 @@ entities:
 - ranked_col
 - top_bottom
 - movie
+- original_title
 - year
 - revenue
 - plot
@@ -110,7 +111,7 @@ slots:
     - romanian
   media:
     type: text
-  movie:
+  original_title:
     type: text
   original_language:
     type: text
@@ -124,7 +125,11 @@ slots:
     type: text
   persistance:
     type: text
-    initial_value: False    
+    initial_value: False
+  scroll_start:
+    type: text
+  scroll_end:
+    type: text
   row_number:
     type: text
     initial_value: 5
