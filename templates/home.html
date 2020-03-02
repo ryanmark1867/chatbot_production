@@ -354,6 +354,7 @@ function showCarouselToFM(payload_for_fm_show_str) {
 	console.log("EYECATCHER 3.1 start of showCarouselToFM ");
 	xhttp.open("POST", 'https://graph.facebook.com/v6.0/me/messages?access_token=EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD', true);
     xhttp.setRequestHeader('Content-type', 'application/json');
+	console.log("EYECATCHER 3.1 start of showCarouselToFM ");
     xhttp.send(payload_for_fm_show_str);
 	console.log("EYECATCHER 3.2 end of showCarouselToFM - here is window.payload_for_fm_str");
 	console.log(window.payload_for_fm_str);
@@ -449,8 +450,8 @@ function showCarouselclosepage(actor_name) {
 <p><button type="submit" onclick="UserAction3() u">Test Rasa REST call to trigger execute 3 UserAction3</button> </p>
 <p><button type="submit" onclick="UserAction">Test Rasa REST call UserAction </button> </p>
 <p><button type="submit" onclick="UserAction2()">Test FM REST call UserAction2</button> </p>
-<p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p> -->
-<p><button type="submit" onclick="UserAction5()">Test FM REST call UserAction5 CAROUSEL JSON returned from RASA call</button> </p>
+<p><button type="submit" onclick="UserAction4()">Test FM REST call UserAction4 CAROUSEL b</button> </p>
+<p><button type="submit" onclick="UserAction5()">Test FM REST call UserAction5 CAROUSEL JSON returned from RASA call</button> </p> -->
 <!-- THE FOLLOWING 3 BUTTONS WORK -->
 <!--
 <p><button type="submit" onclick="CarouselSetSlot()">Test Rasa REST call CarouselSetSlot set slot c</button> </p>

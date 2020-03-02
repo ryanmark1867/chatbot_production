@@ -132,7 +132,9 @@ def homepage():
     title = {'titlename':str(title_display)}
     year = {'yearname':str(wv_payload['year'].display_content[0])}
     plot = {'plotname':str(wv_payload['overview'].display_content[0])}
-    run_time = {'run_timename':str(wv_payload['run_time'].display_content[0])}
+    # TODO hack for demo 1 - replace with robust way to get correct display of run time
+    run_time = {'run_timename':str(wv_payload['run_time'].display_content[0]).replace(".0"," minutes")}
+    
     rating = {'ratingname':str(wv_payload['rating'].display_content)}
     poster_url = {'poster_urlname':str(wv_payload['poster_url'].display_content)}
     genre_list = package_list('genre_listname',wv_payload['genre_list'].display_content)

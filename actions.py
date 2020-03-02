@@ -200,6 +200,7 @@ image_path_dict["medium"] = 'https://image.tmdb.org/t/p/w342' # 342x513
 image_path_dict["big"] = 'https://image.tmdb.org/t/p/w500' # 500x750
 
 persistent_carousel_dict = {}
+carousel_payload = {}
 # switch of whether there is an active carousel
 carousel_active = False
 carousel_size = 0
@@ -1301,7 +1302,7 @@ def get_carousel_payload(key_slot, key_value):
 def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
     ''' build the required JSON as a string then use ast.literal_eval(s) to convert to Python object suitable for  dispatcher.utter_custom_json'''
     # output_string = prefix_string+<cell_string>+<between_cell_string>+suffix_string
-    prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","elements":['
+    prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","image_aspect_ratio":"square","elements":['
     target_URL = wv_URL
     between_cell_string = ','
     suffix_string = ']}}}'
@@ -1315,14 +1316,15 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
         no_next = False
     else:
         no_next = True
-    extra_button_string = " "
     for i in range(start_index, end_index):
+        # by default no prev / next button
+        extra_button_string = " "
         cell_string_title = '{ "title":"'+carousel_payload["movie_list"][i]["original_title"]+'('+carousel_payload["movie_list"][i]["year"]+')",'
         cell_string_image = '"image_url":"'+carousel_payload["movie_list"][i]["poster_path"]+'",'
         if len(carousel_payload["movie_list"][i]['character']) == 0:
             sub_title_str = "not named"
         else: 
-            sub_title_str = str(carousel_payload["movie_list"][i]["character"]).strip('[]')
+            sub_title_str = str(carousel_payload["movie_list"][i]["character"]).strip('[]').replace('"', '')
         cell_string_subtitle = '"subtitle":"'+sub_title_str+'",'
         # deal with the prev/next button
         logging.warning("BUILD-CAROUSEL-JSON start_index i is "+str(i))
@@ -1402,11 +1404,17 @@ class action_scroll_carousel(Action):
       return "action_scroll_carousel"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
     logging.warning("COMMENT - ACTION_SCROLL_CAROUSEL")
+    global carousel_payload
     scroll_start = tracker.get_slot('scroll_start')
     scroll_end = tracker.get_slot('scroll_end')
     logging.warning("scroll_start "+str(scroll_start))
     logging.warning("scroll_end "+str(scroll_end))
-    message6 = build_carousel_json(carousel_payload, carousel_size,int(scroll_start),int(scroll_end))
+    # ensure that we don't scroll off end of movie list
+    if int(scroll_end) <= len(carousel_payload["movie_list"]):
+        right_index = int(scroll_end)
+    else:
+        right_index = len(carousel_payload["movie_list"])
+    message6 = build_carousel_json(carousel_payload, carousel_size,int(scroll_start),right_index)
  
     try:
         if len(carousel_payload["movie_list"]) > 0:
@@ -1433,23 +1441,29 @@ class action_show_carousel(Action):
     # for slot in 
     logging.warning("carousel condition_col is"+str(condition_col))
     logging.warning("carousel raw_key is"+str(raw_key))
+    
     global carousel_payload
     global carousel_size
+    global carousel_size_per_display
     carousel_payload, carousel_size = get_carousel_payload('cast_name',raw_key[0])
     left_index = 0
     if carousel_size <= carousel_size_per_display:
         right_index = carousel_size
     else:
         right_index = carousel_size_per_display
+    
     current_carousel = carousel_tracker(left_index,right_index,carousel_size,carousel_payload)
     ''' given an actor, show a carousel with the posters for all the actor's movies, in text the movie title, date, character name
     '''
     logging.warning("TIMING about to build carousel")
-    message6 = build_carousel_json(carousel_payload, carousel_size,0,2)
-    main_title = []
-    sub_title = []
-    poster_path = []
-    img = []
+    # if total set to display is less than carousel_size_per_display, only show that many
+    if len(carousel_payload["movie_list"]) <= carousel_size_per_display:
+        last_cell_initial_carousel = len(carousel_payload["movie_list"])
+    else:
+        last_cell_initial_carousel = carousel_size_per_display
+    logging.warning("ACTION_SHOW_CAROUSEL cleanup about to build JSON, last_cell_initial_carousel is "+str(last_cell_initial_carousel))
+    message6 = build_carousel_json(carousel_payload, carousel_size,0,last_cell_initial_carousel)
+    logging.warning("back in ACTION_SHOW_CAROUSEL cleanup about to build JSON, last_cell_initial_carousel is "+str(message6))
     try:
         if len(carousel_payload["movie_list"]) > 0:
             slot_dict = tracker.current_slot_values()
@@ -2025,6 +2039,7 @@ class action_condition_by_media(Action):
                      "type":"template",
                      "payload":{
                        "template_type":"generic",
+                       "image_aspect_ratio":"square",
                        "elements":[
                           {
                            "title":str(slot_dict['original_title']),
