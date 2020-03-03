@@ -18,6 +18,7 @@ intents:
 - show_details
 - show_carousel
 - scroll_carousel
+- show_genre_carousel
 
 entities:
 - file_name
@@ -190,4 +191,5 @@ actions:
 - action_show_details
 - action_show_carousel
 - action_scroll_carousel
+- action_show_genre_carousel
 

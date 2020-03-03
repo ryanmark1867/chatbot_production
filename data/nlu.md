@@ -25,6 +25,14 @@
 - scroll command for [Rutger Hauer](cast_name) start [12](scroll_start) end [15](scroll_end)
 - scroll command for [Sean Ryan](cast_name) start [3](scroll_start) end [5](scroll_end)
 
+## intent: show_genre_carousel
+- show the [sci-fi](genre:Science Fiction) movies
+- show [sci-fi](genre:Science Fiction) movie
+- show [science fiction](genre:Science Fiction) movies
+- show [drama](genre:Drama) movies
+- show [action](genre:Action) movies
+
+
 ## intent: list_category
 - list [genres](category:genre)
 - list [Genres](category:genre)

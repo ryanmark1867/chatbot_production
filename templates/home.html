@@ -313,8 +313,9 @@ function showCarouselExecAction() {
 			//2.  get the subset of the JS object that is needed for the payload to FM
 			//window.js_payload_obj = js_json.tracker.events[3].data.custom;
 			//3. get the JS string version of the JS object
-			var js_payload_str = JSON.stringify(js_json.tracker.events[4].data.custom);
-
+			var js_payload_str = JSON.stringify(js_json.tracker.events[3].data.custom);
+			//var js_payload_str = JSON.stringify(js_json.tracker.events[3].data);
+			// var js_payload_str = JSON.stringify(js_json.tracker.events[3].data);
 			//4. define skeleton of the FM payload outside of the payload returned by the Rasa call
 			var skeleton_json_str = '{"recipient": {"id": "2557075157744451"},"message": ';
 			//5.  concat string that has the payload from Rasa in the middle
@@ -458,7 +459,7 @@ function showCarouselclosepage(actor_name) {
 <p><button type="submit" onclick="CarouselExecAction()">Test Rasa REST call CarouselExecAction execute action</button> </p>
 <p><button type="submit" onclick="CarouselToFM()">Test Rasa REST call CarouselToFM() send payload to FM Feb 22b</button> </p>
 -->
-<p> <b>Rating:</b> 
+<p> <b>Rating: T</b> 
 <p> <b>Genres:</b> 
 <!-- display genre list -->  
 {% for genre in genre_list %}

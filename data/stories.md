@@ -13,6 +13,11 @@
 	- action_show_carousel
 
 ## New Story
+* show_genre_carousel{"genre":"Science Fiction"}
+	- slot{"genre":"Science Fiction"}
+	- action_show_genre_carousel
+
+## New Story
 * scroll_carousel{"cast_name":"Harrison Ford","scroll_start":"0","scroll_end":"1"}
 	- slot{"cast_name":"Harrison Ford"}
 	- slot{"scroll_start":"0"}
