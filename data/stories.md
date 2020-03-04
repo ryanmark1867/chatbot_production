@@ -1,6 +1,15 @@
 ## happy path
 * greet
   - action_welcome_page
+  
+## goodbye
+* goodbye
+  - action_goodbye
+
+## thumbs_down
+* thumbs_down
+  - action_thumbs_down
+
 
 ## New Story
 * list_category{"category":"genre"}

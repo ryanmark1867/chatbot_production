@@ -19,6 +19,7 @@ intents:
 - show_carousel
 - scroll_carousel
 - show_genre_carousel
+- thumbs_down
 
 entities:
 - file_name
@@ -192,4 +193,6 @@ actions:
 - action_show_carousel
 - action_scroll_carousel
 - action_show_genre_carousel
+- action_goodbye
+- action_thumbs_down
 

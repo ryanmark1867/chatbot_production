@@ -1314,14 +1314,19 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
     suffix_string = ']}}}'
     cell_string = ''
     # set flags for whether there will be forward and back buttons
+    
     if start_index == 0:
         no_before = True
     else:
         no_before = False
-    if end_index <= carousel_size:
+    logging.warning("BUILD-CAROUSEL-JSON start_index is "+str(start_index)+" end_index is "+str(end_index)+" carousel_size "+str(carousel_size))
+    if end_index < carousel_size:
+        logging.warning("BUILD-CAROUSEL-JSON no_next set to False")
         no_next = False
     else:
+        logging.warning("BUILD-CAROUSEL-JSON no_next set to True")
         no_next = True
+    logging.warning("BUILD-CAROUSEL-JSON no_next is "+str(no_next))
     for i in range(start_index, end_index):
         # by default no prev / next button
         extra_button_string = " "
@@ -1370,6 +1375,105 @@ def get_genre_carousel(original_carousel,genre):
             
     logging.warning("GET_GENRE_CAROUSEL size "+str(len(genre_carousel["movie_list"])))
     return(genre_carousel)
+    
+class action_goodbye(Action):
+   """special demo action to show a genre scoped version of a carousel that had already been shown"""
+   def name(self) -> Text:
+      return "action_goodbye"
+   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    logging.warning("COMMENT - ACTION_GOODBYE")
+    most_recent_state = tracker.current_state()
+    sender_id = most_recent_state['sender_id']
+    fb_access_token = "EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD"
+    r = requests.get('https://graph.facebook.com/{}?fields=first_name,last_name,locale,timezone,gender,profile_pic&access_token={}'.format(sender_id, fb_access_token)).json()
+    first_name = r['first_name']
+    last_name = r['last_name']
+    tz_fb = r['timezone']
+    gender_fb = r['gender']
+    locale_fb = r['locale']
+    string_fb = "gender is "+str(gender_fb)+" timezone is "+str(tz_fb)+" locale is "+str(locale_fb)
+    output_string = "Thanks for chatting, "+str(first_name)+". Were my answers informative?"
+    positive_payload = "everything is fine"
+    negative_payload = "thumbs down"
+    message5 = {
+               
+                      "text": output_string,
+                      "quick_replies": [
+                        {
+                          "content_type": "text",
+                          "payload": positive_payload,
+                          "title": " ",
+                          "image_url":"https://github.com/ryanmark1867/chatbot/raw/master/images/thumb_up_big.jpg"
+                        },
+                        {
+                          "content_type": "text",
+                          "payload": negative_payload,
+                          "title": " ",
+                          "image_url":"https://github.com/ryanmark1867/chatbot/raw/master/images/thumb_down_big.jpg"
+                        }
+                        ]
+                        }
+    try:
+        dispatcher.utter_custom_json(message5)
+        
+    except:
+         if debug_on:
+            raise
+         dispatcher.utter_message("goodbye failed - please try again")
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+
+class action_thumbs_down(Action):
+   """special demo action to show a genre scoped version of a carousel that had already been shown"""
+   def name(self) -> Text:
+      return "action_thumbs_down"
+   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    logging.warning("COMMENT - ACTION_THUMBS_DOWN")
+    most_recent_state = tracker.current_state()
+    sender_id = most_recent_state['sender_id']
+    fb_access_token = "EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD"
+    r = requests.get('https://graph.facebook.com/{}?fields=first_name,last_name,locale,timezone,gender,profile_pic&access_token={}'.format(sender_id, fb_access_token)).json()
+    first_name = r['first_name']
+    last_name = r['last_name']
+    tz_fb = r['timezone']
+    gender_fb = r['gender']
+    locale_fb = r['locale']
+    string_fb = "gender is "+str(gender_fb)+" timezone is "+str(tz_fb)+" locale is "+str(locale_fb)
+    output_string = "How can my answers be improved?"
+    ba_payload = "better accuracy command"
+    md_payload = "more detail command"
+    os_payload = "other suggestion command"
+    message5 = {
+               
+                      "text": output_string,
+                      "quick_replies": [
+                        {
+                          "content_type": "text",
+                          "payload": ba_payload,
+                          "title": "Better accuracy"
+                          
+                        },
+                        {
+                          "content_type": "text",
+                          "payload": md_payload,
+                          "title": "More detail"
+                        }
+                        ,
+                        {
+                          "content_type": "text",
+                          "payload": os_payload,
+                          "title": "Other Suggestion"
+                        }
+                        ]
+                        }
+    try:
+        dispatcher.utter_custom_json(message5)
+        
+    except:
+         if debug_on:
+            raise
+         dispatcher.utter_message("goodbye failed - please try again")
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+
 
 class action_show_genre_carousel(Action):
    """special demo action to show a genre scoped version of a carousel that had already been shown"""
@@ -1386,7 +1490,7 @@ class action_show_genre_carousel(Action):
     else:
         last_cell_initial_carousel = carousel_size_per_display
     logging.warning("ACTION_SHOW_GENRE_CAROUSEL cleanup about to build JSON, last_cell_initial_carousel is "+str(last_cell_initial_carousel))
-    message6 = build_carousel_json(carousel_payload, carousel_size,0,last_cell_initial_carousel)
+    message6 = build_carousel_json(carousel_payload, len(carousel_payload["movie_list"]),0,last_cell_initial_carousel)
     try:
         if len(carousel_payload["movie_list"]) > 0:
             dispatcher.utter_custom_json(message6)
@@ -1415,7 +1519,7 @@ class action_scroll_carousel(Action):
         right_index = int(scroll_end)
     else:
         right_index = len(carousel_payload["movie_list"])
-    message6 = build_carousel_json(carousel_payload, carousel_size,int(scroll_start),right_index)
+    message6 = build_carousel_json(carousel_payload, len(carousel_payload["movie_list"]),int(scroll_start),right_index)
  
     try:
         if len(carousel_payload["movie_list"]) > 0:
@@ -2040,22 +2144,6 @@ class action_condition_by_media(Action):
       logging.warning("COMMENT: end of transmission validated")
       #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("media",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
       return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
-
-
-# set FM welcome screen text
-'''
-class action_welcome_page(Action):
-   """invoke FM welcome page"""
-   def name(self) -> Text:
-      return "action_welcome_page"
-   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-      logging.warning("COMMENT: got a welcome_page")
-      dispatcher.utter_message("Hello <<Name>> I'm Movie Molly. I know a lot about movies. Ask me something")
-      return[]
-'''
-
-
-
 
 
 

@@ -13,6 +13,9 @@
 - good evening
 - hey there
 
+## intent: thumbs_down
+- thumbs down
+
 ## intent:show_carousel
 - carousel command for [Harrison Ford](cast_name)
 - carousel command for [John Wayne](cast_name)
@@ -503,6 +506,8 @@
 - goodbye
 - see you around
 - see you later
+
+
 
 ## intent:greet
 - hey
