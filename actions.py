@@ -60,6 +60,7 @@ default_rank = config['general']['default_rank']
 default_ranked_col = config['general']['default_rank_col']
 # maximum number of FM quick responses
 max_qr = config['general']['max_qr']
+max_buttons = config['general']['max_buttons']
 max_qr_per_row = config['general']['max_qr_per_row']
 # switch to serialize dataframes
 save_files = config['general']['save_files']
@@ -749,8 +750,15 @@ def output_result(dispatcher,result,row_range,tracker):
    avg_set = list(set(list(result)) & set(avg_cols))
    # prep for details view
    qr_count = 0
+   button_count = 0
    qr_list = []
+   button_list = []
+   # for carousel
+   cell_list = []
    col_list = []
+   # elements for building carousel for production
+   prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","image_aspect_ratio":"square","elements":['
+   suffix_string = ']}}}'
    # determine if dispatcher has been saved yet, and if not, save it. If it has been saved, use the saved one 
    '''
    if not(persistent_dispatcher_set):
@@ -785,15 +793,6 @@ def output_result(dispatcher,result,row_range,tracker):
             tracker.events[1]['input_channel'] = "facebook"
             tracker_value = tracker.get_latest_input_channel()
             logging.warning("IN DISPLAY input_channel FEB 17b "+str(tracker_value))
-            # dispatcher.utter_custom_json(message1)
-            # "message":{
-            #"text":"hello, world!"
-            #}
-            #message1 = {
-            #    "output_channel":"facebook",
-            #    "message": str_row
-            #}
-            #dispatcher.utter_custom_json(message1)
             dispatcher.utter_message(str_row)
          else:
             # build query that the qr will trigger
@@ -802,23 +801,66 @@ def output_result(dispatcher,result,row_range,tracker):
             logging.warning("payload_text is "+payload_text)
             t_year = df_dict['movies'][df_dict['movies']['original_title']==str_raw]
             title_year = t_year.iloc[0]['year']
+            title_poster_path = t_year.iloc[0]['poster_path']
+            logging.warning("title_poster_path is "+title_poster_path)
+            title_poster_URL = image_path_dict[image_path_index]+title_poster_path
+            logging.warning("title_poster_URL is "+title_poster_URL)
             title_text = str_raw+" ("+str(title_year)+")"
-            logging.warning("title_text is "+title_text)
-            # build qr entry
-            qr_list.append({"content_type":"text",
+            # poster_url = 
+            if config['general']['debug_on']:
+                # for debug show quick replies that generate separate debug URL button
+                logging.warning("title_text is "+title_text)
+                # build qr entry
+                qr_list.append({"content_type":"text",
                        "payload": payload_text,
                        "title": title_text})
-            qr_count = qr_count+1
-            if qr_count >= max_qr:
-               break
+                qr_count = qr_count+1
+                if qr_count >= max_qr:
+                    break
+            else:
+                # for production show buttons that launch webview directly
+                logging.warning("PROD BUTTON title_text is "+title_text)
+                cell_string = ''
+                cell_string_title = '{ "title":title_text'
+                cell_list.append({
+                            "title":str_raw,
+                            "image_url":title_poster_URL,
+                            "subtitle":title_year,
+                            "buttons":[{
+                                "type": "web_url",
+                                "url": wv_URL,
+                                "title":"click for details",
+                                "messenger_extensions": "true",
+                                "webview_height_ratio": "compact"
+                        }]      
+                })
+                button_count = button_count + 1
+                if button_count >= max_buttons:
+                    break
       # if qrs being output, build remainder of json and send
-      if display_mode == 'details':
+      if display_mode == 'details' and config['general']['debug_on']:
          details_text = tracker.get_slot('genre_name')+", good choice!  Here are some highly rated movies."
          details_message = {               
                       "text": details_text,
                       "quick_replies": qr_list
                       }
          logging.warning("details_message is "+str(details_message))
+         dispatcher.utter_custom_json(details_message)
+         display_mode = "text_list"
+      if display_mode == 'details' and not(config['general']['debug_on']):
+         logging.warning("PROD BUTTON putting together payload for "+title_text)
+         details_text = tracker.get_slot('genre_name')+", good choice!  Here are some highly rated movies."
+         details_message =  {
+                "attachment":{
+                    "type":"template",
+                    "payload":{
+                        "template_type":"generic",
+                        "image_aspect_ratio":"square",
+                        "elements":cell_list
+                   }
+               }
+         }     
+         logging.warning("DETAILS_MESSAGE is "+str(details_message))         
          dispatcher.utter_custom_json(details_message)
          display_mode = "text_list"
    else:
@@ -829,30 +871,58 @@ def output_result(dispatcher,result,row_range,tracker):
          dispatcher.utter_message(str(round(result["avg"].mean(),2)))
    
    return()
+   
+   '''
+       prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","image_aspect_ratio":"square","elements":['
+    target_URL = wv_URL
+    between_cell_string = ','
+    suffix_string = ']}}}'
+    cell_string = ''
+    # set flags for whether there will be forward and back buttons
+    
+    if start_index == 0:
+        no_before = True
+    else:
+        no_before = False
+    logging.warning("BUILD-CAROUSEL-JSON start_index is "+str(start_index)+" end_index is "+str(end_index)+" carousel_size "+str(carousel_size))
+    if end_index < carousel_size:
+        logging.warning("BUILD-CAROUSEL-JSON no_next set to False")
+        no_next = False
+    else:
+        logging.warning("BUILD-CAROUSEL-JSON no_next set to True")
+        no_next = True
+    logging.warning("BUILD-CAROUSEL-JSON no_next is "+str(no_next))
+    for i in range(start_index, end_index):
+        # by default no prev / next button
+        extra_button_string = " "
+        cell_string_title = '{ "title":"'+carousel_payload["movie_list"][i]["original_title"]+'('+carousel_payload["movie_list"][i]["year"]+')",'
+        cell_string_image = '"image_url":"'+carousel_payload["movie_list"][i]["poster_path"]+'",'
+        if len(carousel_payload["movie_list"][i]['character']) == 0:
+            sub_title_str = "not named"
+        else: 
+            sub_title_str = str(carousel_payload["movie_list"][i]["character"]).strip('[]').replace('"', '')
+        cell_string_subtitle = '"subtitle":"'+sub_title_str+'",'
+        # deal with the prev/next button
+        logging.warning("BUILD-CAROUSEL-JSON start_index i is "+str(i))
+        logging.warning("BUILD-CAROUSEL-JSON start_index "+str(start_index)+"no_before"+str(no_before)+" end_index "+str(end_index)+" no_next "+str(no_next))
+        if i == start_index and no_before == False:
+            extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(int(start_index)-carousel_size_per_display)+' end '+str(int(start_index))
+            logging.warning("BUILD-CAROUSEL-JSON prev extra_button_string_payload "+extra_button_string_payload)
+            extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Previous"}'
+        else:
+            if i == (end_index-1) and no_next == False:
+                extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(end_index)+' end '+str(int(end_index)+carousel_size_per_display)
+                logging.warning("BUILD-CAROUSEL-JSON next extra_button_string_payload "+extra_button_string_payload)
+                extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Next"}'
+        #cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}]}'
+        cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "compact"}'+extra_button_string+']}'
+        cell_string = cell_string+cell_string_title+cell_string_image+cell_string_subtitle+cell_mid_boilerplate
+        if i < end_index:
+            cell_string = cell_string+','
+        logging.warning("BUILD-CAROUSEL-JSON cell_string "+cell_string)
+    overall_string = prefix_string +cell_string+suffix_string
+   '''
 
-'''
-      # build list of quick responses
-      i = 0
-      qr_list = []
-      for value in category_values:
-         payload_text = "top "+value+" movies"
-         logging.warning("payload_text is "+payload_text)
-         qr_list.append({"content_type":"text",
-                       "payload": payload_text,
-                       "title": value})
-         i = i+1
-         if i >= max_qr:
-            break
-      list_category_text = "select "+category
-      list_category_message = {               
-                      "text": list_category_text,
-                      "quick_replies": qr_list
-                      }
-      logging.warning("list_category_message is "+str(list_category_message))
-      dispatcher.utter_custom_json(list_category_message)  
-      # set the display mode to detailed so that the results are clickable
-      return[SlotSet('detail_mode','details')]
-'''
 
 def get_key_column(table):
    ''' return the key column for the input table'''
@@ -1180,20 +1250,7 @@ class action_clear_slots(Action):
       return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
      
-      '''
-      EXAMPLE OF CONDITION LIST
-      - condition_dict is {'cast_name': ['Sean Connery']}
-      - condition_table is ['credits_cast']
-      - ranked_cod is original_title
-      - ranked_table is ['movies']
-
-      EXAMPLE OF CONDITION NOT A LIST
-      condition_dict is {'original_title': 'Toy Story'}
-      condition_table is ['movies']
-      ranked_cod is budget
-      ranked_table is ['movies']
-      '''
-      
+       
 def get_wv_payload(key_slot, key_value):
     ''' for the key_slot with key_value, assemble the payload to be displayed in webview. returns dictionary of payload_item objects'''
     #wv_payload_list = ['poster_url', 'original_title', 'year', 'rating','run_time','genre_list','director_list','actor_list','crew_dict','overview'] #list of all the elements in the webview outbound payload
