@@ -1393,7 +1393,7 @@ class action_goodbye(Action):
     locale_fb = r['locale']
     string_fb = "gender is "+str(gender_fb)+" timezone is "+str(tz_fb)+" locale is "+str(locale_fb)
     output_string = "Thanks for chatting, "+str(first_name)+". Were my answers informative?"
-    positive_payload = "everything is fine"
+    positive_payload = "thumbs up"
     negative_payload = "thumbs down"
     message5 = {
                
@@ -1422,6 +1422,34 @@ class action_goodbye(Action):
          dispatcher.utter_message("goodbye failed - please try again")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
+# Thanks, <name of user>, hope to see you again soon.  Tell your friends about me!
+
+class action_feedback_selection_response(Action):
+   """special respond to feedback selection"""
+   def name(self) -> Text:
+      return "action_feedback_selection_response"
+   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    logging.warning("COMMENT - ACTION_FEEDBACK_SELECTION_RESPONSE")
+    most_recent_state = tracker.current_state()
+    sender_id = most_recent_state['sender_id']
+    fb_access_token = "EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD"
+    r = requests.get('https://graph.facebook.com/{}?fields=first_name,last_name,locale,timezone,gender,profile_pic&access_token={}'.format(sender_id, fb_access_token)).json()
+    first_name = r['first_name']
+    last_name = r['last_name']
+    tz_fb = r['timezone']
+    gender_fb = r['gender']
+    locale_fb = r['locale']
+    string_fb = "gender is "+str(gender_fb)+" timezone is "+str(tz_fb)+" locale is "+str(locale_fb)
+    output_string = "Thanks, "+str(first_name)+", hope to see you again soon.  Tell your friends about me!"
+    try:
+        dispatcher.utter_message(output_string)        
+    except:
+         if debug_on:
+            raise
+         dispatcher.utter_message("goodbye failed - please try again")
+    return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
+
+
 class action_thumbs_down(Action):
    """special demo action to show a genre scoped version of a carousel that had already been shown"""
    def name(self) -> Text:
@@ -1439,9 +1467,9 @@ class action_thumbs_down(Action):
     locale_fb = r['locale']
     string_fb = "gender is "+str(gender_fb)+" timezone is "+str(tz_fb)+" locale is "+str(locale_fb)
     output_string = "How can my answers be improved?"
-    ba_payload = "better accuracy command"
-    md_payload = "more detail command"
-    os_payload = "other suggestion command"
+    ba_payload = "negative response accuracy"
+    md_payload = "negative response detail"
+    os_payload = "negative response suggestion"
     message5 = {
                
                       "text": output_string,

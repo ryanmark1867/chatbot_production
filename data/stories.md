@@ -9,6 +9,20 @@
 ## thumbs_down
 * thumbs_down
   - action_thumbs_down
+  
+## thumbs_up
+* thumbs_up
+  - utter_thumbs_up_response
+  
+## feedback_selection_response
+* feedback_selection_response
+  - utter_respond_to_feedback_selection_response
+
+## detail_response_provided
+* detail_response_provided
+  - action_feedback_selection_response
+  
+
 
 
 ## New Story

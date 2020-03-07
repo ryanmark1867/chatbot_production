@@ -16,11 +16,23 @@
 ## intent: thumbs_down
 - thumbs down
 
+## intent: thumbs_up
+- thumbs up
+
+## intent: feedback_selection_response
+- negative response accuracy
+- negative response detail
+- negative response suggestion
+
+## intent: detail_response_provided
+- I want to see movie trailers and related movies
+
 ## intent:show_carousel
 - carousel command for [Harrison Ford](cast_name)
 - carousel command for [John Wayne](cast_name)
 - carousel command for [Rutger Hauer](cast_name)
 - carousel command for [Sean Ryan](cast_name)
+- carousel command for [Ronald Reagan](cast_name)
 
 ## intent:scroll_carousel
 - scroll command for [Harrison Ford](cast_name) start [0](scroll_start) end [1](scroll_end)

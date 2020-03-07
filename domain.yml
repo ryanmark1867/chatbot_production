@@ -20,6 +20,9 @@ intents:
 - scroll_carousel
 - show_genre_carousel
 - thumbs_down
+- thumbs_up
+- feedback_selection_response
+- detail_response_provided
 
 entities:
 - file_name
@@ -162,6 +165,12 @@ templates:
   - text: Did that help you?
   utter_happy:
   - text: Great carry on!
+  utter_thumbs_up_response:
+  - text: Thanks so much - good bye!
+  utter_respond_to_feedback_selection_response:
+  - text: What other detail would you like to see?
+  utter_detail_response_provided_response:
+  - text: Thanks so much for your feedback. We will attempt to incorporate it. Until next time - good bye!
   utter_goodbye:
   - text: Bye
   utter_get_file_columns:
@@ -179,6 +188,9 @@ actions:
 - utter_get_file_columns
 - utter_get_file_row
 - utter_what_next
+- utter_thumbs_up_response
+- utter_respond_to_feedback_selection_response
+- utter_detail_response_provided_response
 - action_file_columns
 - action_file_row
 - action_last_n_rows
@@ -195,4 +207,5 @@ actions:
 - action_show_genre_carousel
 - action_goodbye
 - action_thumbs_down
+- action_feedback_selection_response
 

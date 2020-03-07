@@ -305,8 +305,8 @@ function showCarouselExecAction() {
 			//
 			//1. generate a JS object from the responseText
 			js_json = JSON.parse(xhttp.responseText);
-			console.log("here is xhttp.responseText");
-			console.log(xhttp.responseText);
+			//console.log("here is xhttp.responseText");
+			//console.log(xhttp.responseText);
 			
 			//alert(js_json.tracker.slots.detail_mode);
   
@@ -459,7 +459,7 @@ function showCarouselclosepage(actor_name) {
 <p><button type="submit" onclick="CarouselExecAction()">Test Rasa REST call CarouselExecAction execute action</button> </p>
 <p><button type="submit" onclick="CarouselToFM()">Test Rasa REST call CarouselToFM() send payload to FM Feb 22b</button> </p>
 -->
-<p> <b>Rating: T</b> 
+<!--<p> <b>Rating: T</b> -->
 <p> <b>Genres:</b> 
 <!-- display genre list -->  
 {% for genre in genre_list %}
