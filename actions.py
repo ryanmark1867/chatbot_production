@@ -1350,7 +1350,7 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
                 logging.warning("BUILD-CAROUSEL-JSON next extra_button_string_payload "+extra_button_string_payload)
                 extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Next"}'
         #cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}]}'
-        cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}'+extra_button_string+']}'
+        cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "compact"}'+extra_button_string+']}'
         cell_string = cell_string+cell_string_title+cell_string_image+cell_string_subtitle+cell_mid_boilerplate
         if i < end_index:
             cell_string = cell_string+','
@@ -1666,65 +1666,11 @@ class action_show_details(Action):
                            "url":target_URL,
                            "title":"URL Button",
                            "messenger_extensions": "true",
-                           "webview_height_ratio": "tall"
+                           "webview_height_ratio": "compact"
                         }
                      ]
                   }
                }
-            }
-            gt = {
-            "attachment": {
-                "type": "template",
-                "payload": {
-                    "template_type": "generic",
-                    "elements": [
-                        {
-                            "title": "Welcome! 1",
-                            "image_url": "https://picsum.photos/200",
-                            "subtitle": "We have the right hat for everyone.",
-                            "default_action": {
-                                "type": "web_url",
-                                "url": target_URL,
-                                "webview_height_ratio": "tall",
-                            },
-                            "buttons": [
-                                {
-                                    "type": "web_url",
-                                    "url": target_URL,
-                                    "title": "View Website"
-                                },
-                                {
-                                    "type": "postback",
-                                    "title": "Start Chatting",
-                                    "payload": "DEVELOPER_DEFINED_PAYLOAD"
-                                }
-                            ]
-                        },
-                        {
-                            "title": "Welcome! 2",
-                            "image_url": "https://picsum.photos/200",
-                            "subtitle": "We have the right hat for everyone.",
-                            "default_action": {
-                                "type": "web_url",
-                                "url": target_URL,
-                                "webview_height_ratio": "tall",
-                            },
-                            "buttons": [
-                                {
-                                    "type": "web_url",
-                                    "url": target_URL,
-                                    "title": "View Website"
-                                },
-                                {
-                                    "type": "postback",
-                                    "title": "Start Chatting",
-                                    "payload": "DEVELOPER_DEFINED_PAYLOAD"
-                                }
-                            ]
-                            }
-                        ]
-                    }
-                }
             }
             dispatcher.utter_custom_json(message1)
             dispatcher.utter_message("COMMENT - past posting to FM Jan 31")
