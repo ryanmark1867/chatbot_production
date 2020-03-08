@@ -313,7 +313,27 @@ function showCarouselExecAction() {
 			//2.  get the subset of the JS object that is needed for the payload to FM
 			//window.js_payload_obj = js_json.tracker.events[3].data.custom;
 			//3. get the JS string version of the JS object
-			var js_payload_str = JSON.stringify(js_json.tracker.events[3].data.custom);
+			// element of events array that contains key payload keeps changing, so need to find it
+			js_payload_prep = JSON.stringify(js_json.tracker.events);
+			golden_key = 'data';
+			var i = 0;
+			var golden_index;
+			js_json.tracker.events.forEach(function (data) {
+				if (data.data) {
+					golden_index = i
+				} 
+				i = i+1
+			});
+			//for (var key in js_payload_prep){
+			//	if (key.hasOwnProperty(golden_key)){
+			//		golden_index = i}
+			//	i = i+1
+			//}
+			console.log("here is golden_index");
+			console.log(golden_index);
+			console.log("here is i");
+			console.log(i);
+			var js_payload_str = JSON.stringify(js_json.tracker.events[golden_index].data.custom);
 			//var js_payload_str = JSON.stringify(js_json.tracker.events[3].data);
 			// var js_payload_str = JSON.stringify(js_json.tracker.events[3].data);
 			//4. define skeleton of the FM payload outside of the payload returned by the Rasa call
