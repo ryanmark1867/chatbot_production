@@ -478,11 +478,14 @@ logging.warning("BEFORE credits_cast col names "+str(list(df_dict['credits_cast'
 logging.warning("BEFORE movies col names "+str(list(df_dict['movies'].columns.values)))
 
 df_dict['credits_cast']['movie_id2'] = df_dict['credits_cast']['movie_id']
+df_dict['credits_crew_Director']['movie_id2'] = df_dict['credits_crew_Director']['movie_id']
 df_dict['movies_genres']['movie_id2'] = df_dict['movies_genres']['movie_id']
 df_dict['movies']['id2'] = df_dict['movies']['id']
 
 df_dict['credits_cast'] = df_dict['credits_cast'].set_index('movie_id2')
 df_dict['credits_cast'] = df_dict['credits_cast'].sort_index()
+df_dict['credits_crew_Director'] = df_dict['credits_crew_Director'].set_index('movie_id2')
+df_dict['credits_crew_Director'] = df_dict['credits_crew_Director'].sort_index()
 print("AFTER credits_cast col names "+str(list(df_dict['credits_cast'].columns.values)))
 df_dict['movies'] = df_dict['movies'].set_index('id2')
 df_dict['movies'] = df_dict['movies'].sort_index()
