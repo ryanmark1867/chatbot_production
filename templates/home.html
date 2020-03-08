@@ -274,6 +274,15 @@ function CarouselToFM() {
 <script>
 function showCarouselSetSlot(actor_name) {
     var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function () {
+    if (xhttp.readyState === xhttp.DONE) {
+        if (xhttp.status === 200) {
+			console.log("MAR 7 got 200 back from slot set");
+			showCarouselExecAction();
+			console.log("EYECATCHER SLIMLINE3 - past showCarouselExecAction");
+			}
+		}
+	};
 	var json_prefix_str = '{"event":"slot","name":"cast_name","value":["';
 	json_val = json_prefix_str.concat(actor_name.toLowerCase(),'"]}');
 	console.log("EYECATCHER 1.1 slot set json_val is")
@@ -390,8 +399,8 @@ function showCarousel(actor_name) {
 				showCarouselSetSlot(actor_name);
 				console.log("EYECATCHER SLIMLINE2 - past showCarouselSetSlot");
 				// execute Rasa action and prepare Rasa output for call to render in FM
-				showCarouselExecAction();
-				console.log("EYECATCHER SLIMLINE3 - past showCarouselExecAction");
+				//showCarouselExecAction();
+				//console.log("EYECATCHER SLIMLINE3 - past showCarouselExecAction");
 				// render output of Rasa action in FM
 				
 			

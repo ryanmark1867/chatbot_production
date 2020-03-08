@@ -23,6 +23,7 @@ intents:
 - thumbs_up
 - feedback_selection_response
 - detail_response_provided
+- unimplemented_features
 
 entities:
 - file_name
@@ -171,6 +172,8 @@ templates:
   - text: What other detail would you like to see?
   utter_detail_response_provided_response:
   - text: Thanks so much for your feedback. We will attempt to incorporate it. Until next time - good bye!
+  utter_unimplemented_features:
+  - text: Sorry, that feature has not been implemented yet
   utter_goodbye:
   - text: Bye
   utter_get_file_columns:
@@ -191,6 +194,7 @@ actions:
 - utter_thumbs_up_response
 - utter_respond_to_feedback_selection_response
 - utter_detail_response_provided_response
+- utter_unimplemented_features
 - action_file_columns
 - action_file_row
 - action_last_n_rows

@@ -20,9 +20,14 @@
 - thumbs up
 
 ## intent: feedback_selection_response
-- negative response accuracy
 - negative response detail
-- negative response suggestion
+
+## intent: unimplemented_features
+- unimplemented show top films
+- unimplemented show top actors
+- unimplemented negative response accuracy
+- unimplemented negative response suggestion
+
 
 ## intent: detail_response_provided
 - I want to see movie trailers and related movies

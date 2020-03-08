@@ -1505,9 +1505,9 @@ class action_thumbs_down(Action):
     locale_fb = r['locale']
     string_fb = "gender is "+str(gender_fb)+" timezone is "+str(tz_fb)+" locale is "+str(locale_fb)
     output_string = "How can my answers be improved?"
-    ba_payload = "negative response accuracy"
+    ba_payload = "unimplemented negative response accuracy"
     md_payload = "negative response detail"
-    os_payload = "negative response suggestion"
+    os_payload = "unimplemented negative response suggestion"
     message5 = {
                
                       "text": output_string,
@@ -1804,8 +1804,8 @@ class action_welcome_page(Action):
       conf_string = "Hello, "+first_name+", I'm Movie Molly! Ask me about your favourite movie or actor,"
       dispatcher.utter_message(conf_string)
       genre_payload = "show genres"
-      top_rated_payload = "show top films"
-      actor_payload = "show top actors"
+      top_rated_payload = "unimplemented show top films"
+      actor_payload = "unimplemented show top actors"
       message4 = {
                "attachment": {
                     "type": "template",
