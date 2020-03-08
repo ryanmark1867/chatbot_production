@@ -732,6 +732,28 @@ def get_condition_columns_to_pull(child_key, ranked_table, condition_table):
       # reverse lookup the key in ranked_table that corresponds with the value condition_table and append to column_list
       column_list.append(list(ranked_table.keys())[list(ranked_table.values()).index(condition_table)])
    return(column_list)
+   
+def get_wv_payload_dict(result,print_limit):
+    ''' build dictionary of wv_payload items, one wv_payload for each item in result'''
+    wv_payload_dict = {}
+    i = 0
+    logging.warning("in GET_WV_PAYLOAD_DICT ENTRY FOR ")
+    for index, row in result.iterrows():
+         str_row = ""
+         str_row_log = ""
+         i = i+1
+         if i > print_limit:
+            break
+         for col in result.columns:
+            # don't output ID columns for final bot rendering
+            if (col != parent_key and col != child_key):
+               str_raw = str(row[col])
+ 
+         logging.warning("CREATING WV_PAYLOAD_DICT ENTRY FOR "+str_raw)
+         wv_payload_dict[str_raw] = get_wv_payload('original_title',str_raw)
+    # save the entire dictionary to pickle file
+ 
+    return(wv_payload_dict)
 
 def output_result(dispatcher,result,row_range,tracker):
    ''' common output to bot interface and logger '''
@@ -760,15 +782,6 @@ def output_result(dispatcher,result,row_range,tracker):
    prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","image_aspect_ratio":"square","elements":['
    suffix_string = ']}}}'
    # determine if dispatcher has been saved yet, and if not, save it. If it has been saved, use the saved one 
-   '''
-   if not(persistent_dispatcher_set):
-    logging.warning("EYECATCHER - SETTING PERSISTEN_DISPATCHER_SET")
-    persistent_dispatcher_set = True
-    persistent_dispatcher = copy.deepcopy(dispatcher)
-   else:
-    logging.warning("EYECATCHER - SETTING DISPATCHER TO PERSISTENT")
-    dispatcher = persistent_dispatcher 
-   '''
    if not avg_set:
       # no average columns to calculate
       for index, row in result.iterrows():
@@ -807,6 +820,7 @@ def output_result(dispatcher,result,row_range,tracker):
             logging.warning("title_poster_URL is "+title_poster_URL)
             title_text = str_raw+" ("+str(title_year)+")"
             # poster_url = 
+            '''
             if config['general']['debug_on']:
                 # for debug show quick replies that generate separate debug URL button
                 logging.warning("title_text is "+title_text)
@@ -818,26 +832,31 @@ def output_result(dispatcher,result,row_range,tracker):
                 if qr_count >= max_qr:
                     break
             else:
-                # for production show buttons that launch webview directly
-                logging.warning("PROD BUTTON title_text is "+title_text)
-                cell_string = ''
-                cell_string_title = '{ "title":title_text'
-                cell_list.append({
+            '''
+            # for production show buttons that launch webview directly
+                
+            cell_string = ''
+            cell_string_title = '{ "title":title_text'
+            url_suffix = "?wv_url_index="+str_raw
+            target_url = wv_URL+url_suffix
+            logging.warning("PROD BUTTON title_text target_url is "+title_text+" "+target_url)
+            cell_list.append({
                             "title":str_raw,
                             "image_url":title_poster_URL,
                             "subtitle":title_year,
                             "buttons":[{
                                 "type": "web_url",
-                                "url": wv_URL,
+                                "url": target_url,
                                 "title":"click for details",
                                 "messenger_extensions": "true",
                                 "webview_height_ratio": "compact"
                         }]      
-                })
-                button_count = button_count + 1
-                if button_count >= max_buttons:
-                    break
+            })
+            button_count = button_count + 1
+            if button_count >= max_buttons:
+                break
       # if qrs being output, build remainder of json and send
+      '''
       if display_mode == 'details' and config['general']['debug_on']:
          details_text = tracker.get_slot('genre_name')+", good choice!  Here are some highly rated movies."
          details_message = {               
@@ -847,7 +866,9 @@ def output_result(dispatcher,result,row_range,tracker):
          logging.warning("details_message is "+str(details_message))
          dispatcher.utter_custom_json(details_message)
          display_mode = "text_list"
-      if display_mode == 'details' and not(config['general']['debug_on']):
+      '''
+      if display_mode == 'details':
+         # display production version of detailed output
          logging.warning("PROD BUTTON putting together payload for "+title_text)
          details_text = tracker.get_slot('genre_name')+", good choice!  Here are some highly rated movies."
          details_message =  {
@@ -863,6 +884,10 @@ def output_result(dispatcher,result,row_range,tracker):
          logging.warning("DETAILS_MESSAGE is "+str(details_message))         
          dispatcher.utter_custom_json(details_message)
          display_mode = "text_list"
+         logging.warning("ABOUT TO LOAD WV_PAYLOAD_DICT")
+         wv_payload_dict = get_wv_payload_dict(result, print_limit)
+         load_wv_payload(wv_payload_dict)
+         
    else:
       # need to print average of columns
       for col in avg_set:
@@ -872,56 +897,6 @@ def output_result(dispatcher,result,row_range,tracker):
    
    return()
    
-   '''
-       prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","image_aspect_ratio":"square","elements":['
-    target_URL = wv_URL
-    between_cell_string = ','
-    suffix_string = ']}}}'
-    cell_string = ''
-    # set flags for whether there will be forward and back buttons
-    
-    if start_index == 0:
-        no_before = True
-    else:
-        no_before = False
-    logging.warning("BUILD-CAROUSEL-JSON start_index is "+str(start_index)+" end_index is "+str(end_index)+" carousel_size "+str(carousel_size))
-    if end_index < carousel_size:
-        logging.warning("BUILD-CAROUSEL-JSON no_next set to False")
-        no_next = False
-    else:
-        logging.warning("BUILD-CAROUSEL-JSON no_next set to True")
-        no_next = True
-    logging.warning("BUILD-CAROUSEL-JSON no_next is "+str(no_next))
-    for i in range(start_index, end_index):
-        # by default no prev / next button
-        extra_button_string = " "
-        cell_string_title = '{ "title":"'+carousel_payload["movie_list"][i]["original_title"]+'('+carousel_payload["movie_list"][i]["year"]+')",'
-        cell_string_image = '"image_url":"'+carousel_payload["movie_list"][i]["poster_path"]+'",'
-        if len(carousel_payload["movie_list"][i]['character']) == 0:
-            sub_title_str = "not named"
-        else: 
-            sub_title_str = str(carousel_payload["movie_list"][i]["character"]).strip('[]').replace('"', '')
-        cell_string_subtitle = '"subtitle":"'+sub_title_str+'",'
-        # deal with the prev/next button
-        logging.warning("BUILD-CAROUSEL-JSON start_index i is "+str(i))
-        logging.warning("BUILD-CAROUSEL-JSON start_index "+str(start_index)+"no_before"+str(no_before)+" end_index "+str(end_index)+" no_next "+str(no_next))
-        if i == start_index and no_before == False:
-            extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(int(start_index)-carousel_size_per_display)+' end '+str(int(start_index))
-            logging.warning("BUILD-CAROUSEL-JSON prev extra_button_string_payload "+extra_button_string_payload)
-            extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Previous"}'
-        else:
-            if i == (end_index-1) and no_next == False:
-                extra_button_string_payload = 'scroll command for '+carousel_payload['cast_name']+' start '+str(end_index)+' end '+str(int(end_index)+carousel_size_per_display)
-                logging.warning("BUILD-CAROUSEL-JSON next extra_button_string_payload "+extra_button_string_payload)
-                extra_button_string = ',{"type": "postback","payload":"'+extra_button_string_payload+'","title": "Next"}'
-        #cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "tall"}]}'
-        cell_mid_boilerplate = '"buttons":[ {"type":"web_url","url":"'+target_URL+'",'+'"title":"Movie Details","messenger_extensions": "true","webview_height_ratio": "compact"}'+extra_button_string+']}'
-        cell_string = cell_string+cell_string_title+cell_string_image+cell_string_subtitle+cell_mid_boilerplate
-        if i < end_index:
-            cell_string = cell_string+','
-        logging.warning("BUILD-CAROUSEL-JSON cell_string "+cell_string)
-    overall_string = prefix_string +cell_string+suffix_string
-   '''
 
 
 def get_key_column(table):
@@ -1262,7 +1237,10 @@ def get_wv_payload(key_slot, key_value):
         self.return_payload = return_payload # what gets sent back if this display item gets selected'''
     # TODO post demo 1 get a more elegant way to get all the required keys
     # base_df = base_df[(base_df[condition].apply(lambda x: prep_compare(x))).isin(map(lambda x:x.lower(),condition_dict[condition]))]
-    movie_id_list = df_dict['movies'][(df_dict['movies'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['id'].tolist()
+    logging.warning("IN GET_WV_PAYLOAD key_slot is"+str(key_slot)+" key_value is "+key_value)
+    #movie_id_list = df_dict['movies'][(df_dict['movies'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['id'].tolist()
+    # since raw value is being sent without going through Rasa, don't need prep_compare
+    movie_id_list = df_dict['movies'][df_dict['movies'][key_slot]==key_value]['id'].tolist()
     logging.warning("movie_id_list is"+str(movie_id_list))
     movie_id_value = movie_id_list[0]
     wv_payload_list = {}

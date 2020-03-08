@@ -117,16 +117,11 @@ def homepage():
     global selected_category
     print("about to try to show page")
     wv_payload_path = 'wv_payload.pkl'
+    wv_url_index = request.args.get('wv_url_index')
     with open(wv_payload_path, 'rb') as handle:
-        wv_payload = pickle.load(handle)
-    '''    
-    for wv_payload_index in wv_payload:
-        print("here is item "+str(wv_payload_index))
-        print("display content is "+str(wv_payload[wv_payload_index].display_content))
-        print("display type is "+str(wv_payload[wv_payload_index].display_type))
-        print("return type is "+str(wv_payload[wv_payload_index].return_type))
-        print("return payload is "+str(wv_payload[wv_payload_index].return_payload))
-    '''
+        #wv_payload = pickle.load(handle)
+        wv_payload_dict = pickle.load(handle)
+    wv_payload = wv_payload_dict[wv_url_index]
     title_display = wv_payload['original_title'].display_content[0]
     print("title_display is "+str(title_display))
     title = {'titlename':str(title_display)}
