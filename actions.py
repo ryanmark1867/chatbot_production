@@ -31,10 +31,10 @@ import pickle
 #from flask_test import test_call
 #from flask_test import read_wv_payload
 # import classes for exchanging data with dynamic web serving code
+import webview_classes
 from webview_classes import movie_info
 from webview_classes import payload_item
 from webview_classes import carousel_tracker
-
 
 
 
@@ -101,6 +101,9 @@ if logging_level == 'DEBUG':
 if logging_level == 'INFO':
     logging_level_set = logging.INFO   
 logging.getLogger().setLevel(logging_level_set)
+# format='%(asctime)s.%(msecs)03d %(levelname)s {%(module)s} [%(funcName)s] %(message)s'
+#logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s {%(module)s} [%(funcName)s] %(message)s', datefmt='%Y-%m-%d,%H:%M:%S', level=logging_level_set)
+logging.Formatter(fmt='%(asctime)s.%(msecs)03d',datefmt='%Y-%m-%d,%H:%M:%S')
 logging.warning("logging check")
 
 
@@ -111,6 +114,8 @@ wv_payload = {}
 # define a persistent dispatcher to display in FM
 persistent_dispatcher_set = False
 persistent_dispatcher = CollectingDispatcher()
+#persistent_result
+#persistent_print_limit = 0
 
 #  test_call("test to other file feb 1, 2020")
 
@@ -739,8 +744,10 @@ def get_condition_columns_to_pull(child_key, ranked_table, condition_table):
 def get_wv_payload_dict(result,print_limit):
     ''' build dictionary of wv_payload items, one wv_payload for each item in result'''
     wv_payload_dict = {}
+    
     i = 0
     logging.warning("in GET_WV_PAYLOAD_DICT ENTRY FOR ")
+    webview_classes.wv_payload_dict_shared = {}
     for index, row in result.iterrows():
          str_row = ""
          str_row_log = ""
@@ -754,9 +761,11 @@ def get_wv_payload_dict(result,print_limit):
  
          logging.warning("CREATING WV_PAYLOAD_DICT ENTRY FOR "+str_raw)
          wv_payload_dict[str_raw] = get_wv_payload('original_title',str_raw)
+         #webview_classes.wv_payload_dict_shared[str_raw] = get_wv_payload('original_title',str_raw) 
     # save the entire dictionary to pickle file
  
     return(wv_payload_dict)
+    #return()
 
 def output_result(dispatcher,result,row_range,tracker):
    ''' common output to bot interface and logger '''
@@ -888,8 +897,19 @@ def output_result(dispatcher,result,row_range,tracker):
          dispatcher.utter_custom_json(details_message)
          display_mode = "text_list"
          logging.warning("ABOUT TO LOAD WV_PAYLOAD_DICT")
+         # revised loading of wv_payload_dict_shared
+         # get_wv_payload_dict(result, print_limit)
          wv_payload_dict = get_wv_payload_dict(result, print_limit)
          load_wv_payload(wv_payload_dict)
+         '''
+         # revised loading of wv_payload_dict
+         global persistent_result
+         persistent_result = result
+         global persistent_print_limit 
+         persistent_print_limit = print_limit
+         perf__load_wv_payload_dict_str = "performance workaround wv_payload"
+         dispatcher.utter_message(perf__load_wv_payload_dict_str)
+         '''
          
    else:
       # need to print average of columns
@@ -1101,12 +1121,30 @@ def generate_result(slot_dict,condition_dict,condition_table,ranked_table,dispat
       logging.warning("exception not generated")
    return(result)
 
+class action_performance_workaround_wv_payload(Action):
+   """return the values from one or more tables and order output results"""
+   def name(self) -> Text:
+      return "action_performance_workaround_wv_payload"
+   def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+      logging.warning("IN action_performance_workaround_wv_payload")
+      global persistent_result
+      global persistent_print_limit
+      try:
+         wv_payload_dict = get_wv_payload_dict(persistent_result, persisten_print_limit)
+         load_wv_payload(wv_payload_dict)      
+      except Exception as e:
+         if debug_on:
+            raise
+         logging.warning("exception generated "+str(e))
+         dispatcher.utter_message("perf wv_payload error - please continue with next query")      
+      return[]
+
 class action_condition_by_movie_ordered(Action):
    """return the values from one or more tables and order output results"""
    def name(self) -> Text:
       return "action_condition_by_movie_ordered"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-      logging.warning("IN CONDITION BY MOVIE ORDERED")
+      logging.error("IN CONDITION BY MOVIE ORDERED")
       try:
          # get dictionary of slot values
          slot_dict = {}
@@ -1161,7 +1199,7 @@ class action_condition_by_movie_ordered(Action):
          logging.warning("exception generated "+str(e))
          dispatcher.utter_message("query generated error - please continue with next query")
       logging.warning("COMMENT: end of transmission FM")
-      
+      logging.error("END CONDITION BY MOVIE ORDERED")
       #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
       return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
@@ -1178,7 +1216,7 @@ class action_condition_by_movie(Action):
         return "action_condition_by_movie"
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         tracker_value = tracker.get_latest_input_channel()
-        logging.warning("IN CONDITION BY MOVIE TRACKER_VALUE "+str(tracker_value))
+        logging.error("IN CONDITION BY MOVIE TRACKER_VALUE "+str(tracker_value))
         # get dictionary of slot values
         try:
             slot_dict = {}
@@ -1216,6 +1254,7 @@ class action_condition_by_movie(Action):
       
         # TODO more elegant way to clear out used slots
         #return [SlotSet("ranked_col",None),SlotSet("character",None),SlotSet("movie",None),SlotSet("rank_axis",None),SlotSet("keyword",None),SlotSet("year",None),SlotSet("genre",None),SlotSet("plot",None),SlotSet("Director",None),SlotSet("cast_name",None)]
+        logging.error("END CONDITION BY MOVIE TRACKER_VALUE "+str(tracker_value))
         return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None), SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
@@ -1240,7 +1279,7 @@ def get_wv_payload(key_slot, key_value):
         self.return_payload = return_payload # what gets sent back if this display item gets selected'''
     # TODO post demo 1 get a more elegant way to get all the required keys
     # base_df = base_df[(base_df[condition].apply(lambda x: prep_compare(x))).isin(map(lambda x:x.lower(),condition_dict[condition]))]
-    logging.warning("IN GET_WV_PAYLOAD key_slot is"+str(key_slot)+" key_value is "+key_value)
+    logging.error("IN GET_WV_PAYLOAD key_slot is"+str(key_slot)+" key_value is "+key_value)
     #movie_id_list = df_dict['movies'][(df_dict['movies'][key_slot].apply(lambda x: prep_compare(x)))==key_value]['id'].tolist()
     # since raw value is being sent without going through Rasa, don't need prep_compare
     movie_id_list = df_dict['movies'][df_dict['movies'][key_slot]==key_value]['id'].tolist()
@@ -1261,6 +1300,7 @@ def get_wv_payload(key_slot, key_value):
     wv_payload_list['director_list'] = payload_item(dir_list,'link','fm','show movies directed by ')
     wv_payload_list['actor_list'] = payload_item(df_dict['credits_cast'][df_dict['credits_cast']['movie_id']==movie_id_value]['cast_name'].tolist(),'link','fm','show movies starring ')
     wv_payload_list['overview'] = payload_item(df_dict['movies'][df_dict['movies']['id']==movie_id_value]['overview'].tolist(),'text',None,None)
+    logging.error("END GET_WV_PAYLOAD") 
     return(wv_payload_list)
     
 def load_wv_payload(wv_payload):
@@ -1347,7 +1387,10 @@ def build_carousel_json(carousel_payload, carousel_size,start_index,end_index):
     ''' build the required JSON as a string then use ast.literal_eval(s) to convert to Python object suitable for  dispatcher.utter_custom_json'''
     # output_string = prefix_string+<cell_string>+<between_cell_string>+suffix_string
     prefix_string = '{"attachment":{"type":"template","payload":{"template_type":"generic","image_aspect_ratio":"square","elements":['
-    target_URL = wv_URL
+    # placeholder value
+    url_suffix = "?wv_url_index="+"Blade Runner"
+    target_URL = wv_URL+url_suffix
+    #target_URL = wv_URL
     between_cell_string = ','
     suffix_string = ']}}}'
     cell_string = ''
@@ -1419,7 +1462,7 @@ class action_goodbye(Action):
    def name(self) -> Text:
       return "action_goodbye"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    logging.warning("COMMENT - ACTION_GOODBYE")
+    logging.error("IN - ACTION_GOODBYE")
     most_recent_state = tracker.current_state()
     sender_id = most_recent_state['sender_id']
     fb_access_token = "EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD"
@@ -1458,6 +1501,7 @@ class action_goodbye(Action):
          if debug_on:
             raise
          dispatcher.utter_message("goodbye failed - please try again")
+    logging.error("END - ACTION_GOODBYE")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 # Thanks, <name of user>, hope to see you again soon.  Tell your friends about me!
@@ -1467,7 +1511,7 @@ class action_feedback_selection_response(Action):
    def name(self) -> Text:
       return "action_feedback_selection_response"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    logging.warning("COMMENT - ACTION_FEEDBACK_SELECTION_RESPONSE")
+    logging.error("IN - ACTION_FEEDBACK_SELECTION_RESPONSE")
     most_recent_state = tracker.current_state()
     sender_id = most_recent_state['sender_id']
     fb_access_token = "EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD"
@@ -1485,6 +1529,7 @@ class action_feedback_selection_response(Action):
          if debug_on:
             raise
          dispatcher.utter_message("goodbye failed - please try again")
+    logging.error("END - ACTION_FEEDBACK_SELECTION_RESPONSE")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
@@ -1493,7 +1538,7 @@ class action_thumbs_down(Action):
    def name(self) -> Text:
       return "action_thumbs_down"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    logging.warning("COMMENT - ACTION_THUMBS_DOWN")
+    logging.error("IN - ACTION_THUMBS_DOWN")
     most_recent_state = tracker.current_state()
     sender_id = most_recent_state['sender_id']
     fb_access_token = "EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD"
@@ -1538,6 +1583,7 @@ class action_thumbs_down(Action):
          if debug_on:
             raise
          dispatcher.utter_message("goodbye failed - please try again")
+    logging.error("END - ACTION_THUMBS_DOWN")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
@@ -1546,7 +1592,7 @@ class action_show_genre_carousel(Action):
    def name(self) -> Text:
       return "action_show_genre_carousel"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    logging.warning("COMMENT - ACTION_SHOW_GENRE_CAROUSEL")
+    logging.error("IN - ACTION_SHOW_GENRE_CAROUSEL")
     global carousel_payload
     genre = tracker.get_slot('genre')
     # TODO hack to get genre carousel for demo 1 - should be dealt with more flexibly
@@ -1566,6 +1612,7 @@ class action_show_genre_carousel(Action):
          if debug_on:
             raise
          dispatcher.utter_message("carousel failed - please try another query")
+    logging.error("END - ACTION_SHOW_GENRE_CAROUSEL")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
@@ -1574,7 +1621,7 @@ class action_scroll_carousel(Action):
    def name(self) -> Text:
       return "action_scroll_carousel"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    logging.warning("COMMENT - ACTION_SCROLL_CAROUSEL")
+    logging.error("IN - ACTION_SCROLL_CAROUSEL")
     global carousel_payload
     scroll_start = tracker.get_slot('scroll_start')
     scroll_end = tracker.get_slot('scroll_end')
@@ -1596,6 +1643,7 @@ class action_scroll_carousel(Action):
          if debug_on:
             raise
          dispatcher.utter_message("carousel failed - please try another query")
+    logging.error("END - ACTION_SCROLL_CAROUSEL")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
     
@@ -1606,7 +1654,7 @@ class action_show_carousel(Action):
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
     # the column of the key will be in condition_col and the key itself will be in the slot indicated by condition_col
     # TODO replace hardcoding of condition_col with something more intelligent
-    logging.warning("IN ACTION_SHOW_CAROUSEL")
+    logging.error("IN ACTION_SHOW_CAROUSEL")
     condition_col = 'cast_name'
     raw_key = tracker.get_slot(condition_col)
     # for slot in 
@@ -1645,6 +1693,7 @@ class action_show_carousel(Action):
          if debug_on:
             raise
          dispatcher.utter_message("carousel failed - please try another query")
+    logging.error("END ACTION_SHOW_CAROUSEL")
     return[SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
@@ -1728,7 +1777,7 @@ class action_list_category(Action):
    def name(self) -> Text:
       return "action_list_category"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-      logging.warning("IN ACTION LIST CATEGORY")
+      logging.error("IN ACTION LIST CATEGORY")
       global display_mode
       category = tracker.get_slot('category')
       category_table = category_table_dict[category]
@@ -1778,6 +1827,7 @@ class action_list_category(Action):
       # set the display mode to detailed so that the results are clickable
       logging.warning("display_mode 3 is: "+display_mode)
       display_mode = "details"
+      logging.error("END ACTION LIST CATEGORY")
       return[SlotSet('detail_mode','details'),SlotSet('budget',None),SlotSet('cast_name',None),SlotSet('character',None),SlotSet('condition_col',None),SlotSet('condition_operator',None),SlotSet('condition_val',None),SlotSet('Costume_Design',None),SlotSet('Director',None),SlotSet('Editor',None),SlotSet('file_name',None),SlotSet('genre',None),SlotSet('keyword',None),SlotSet('language',None),SlotSet('media',None),SlotSet('original_title',None),	SlotSet('original_language',None),SlotSet('plot',None),SlotSet('Producer',None),SlotSet('rank_axis',None),SlotSet('ranked_col',None),SlotSet('revenue',None),SlotSet('row_number',None),SlotSet('row_range',None),SlotSet('sort_col',None),SlotSet('top_bottom',None),SlotSet('year',None),SlotSet('ascending_descending',None)]
 
 
@@ -1789,7 +1839,7 @@ class action_welcome_page(Action):
    def name(self) -> Text:
       return "action_welcome_page"
    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-      logging.warning("IN INITIALIZE FM")
+      logging.error("IN INITIALIZE FM")
       most_recent_state = tracker.current_state()
       sender_id = most_recent_state['sender_id']
       fb_access_token = "EAAKrBDkZCQtgBAPkGlFtV4VqvcSggjDV1Sf8ClnZBmYagK4ZBQHtcZB9W5sOKBZCjRjad3ZCEZBFXo6ZACmZCzFte2xDxzHrkyKFCNEjmWuZBR72ZBxkoJiZCBFUC6ZBTgGVKLPZBE3yL7IQT86hLyEvTor4F1sb6Vg8gkBMCrQVi5QfzQuQZDZD"
@@ -1853,7 +1903,7 @@ class action_welcome_page(Action):
                       ]
                     }
       dispatcher.utter_custom_json(message5)
-      logging.warning("after buttons")
+      logging.error("END INITIALIZE FM")
       return [SlotSet('name', first_name), SlotSet('surname', last_name)]
 
 # persistent menu not working yet

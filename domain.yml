@@ -24,6 +24,7 @@ intents:
 - feedback_selection_response
 - detail_response_provided
 - unimplemented_features
+- performance_workaround_wv_payload
 
 entities:
 - file_name
@@ -212,4 +213,5 @@ actions:
 - action_goodbye
 - action_thumbs_down
 - action_feedback_selection_response
+- action_performance_workaround_wv_payload
 

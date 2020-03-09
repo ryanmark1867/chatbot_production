@@ -32,6 +32,9 @@
 ## intent: detail_response_provided
 - I want to see movie trailers and related movies
 
+## intent: performance_workaround_wv_payload
+- performance workaround wv_payload
+
 ## intent:show_carousel
 - carousel command for [Harrison Ford](cast_name)
 - carousel command for [John Wayne](cast_name)

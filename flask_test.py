@@ -4,8 +4,10 @@ from flask import Flask, render_template, request
 from string import Template
 from OpenSSL import SSL
 # import classes for exchanging data with dynamic web serving code
+import webview_classes
 from webview_classes import movie_info
 from webview_classes import payload_item
+#from webview_classes import wv_payload_dict_shared
 import pickle
 from rasa.nlu.model import Interpreter
 import requests
@@ -17,7 +19,8 @@ import json
 # client_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 #
 
-
+# init wv_payload_dict wv_payload_dict_shared
+#webview_classes.init()
 
 
 
@@ -118,6 +121,7 @@ def homepage():
     print("about to try to show page")
     wv_payload_path = 'wv_payload.pkl'
     wv_url_index = request.args.get('wv_url_index')
+    
     with open(wv_payload_path, 'rb') as handle:
         #wv_payload = pickle.load(handle)
         wv_payload_dict = pickle.load(handle)

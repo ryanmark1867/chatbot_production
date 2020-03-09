@@ -42,4 +42,8 @@ class carousel_tracker:
         self.before_movie_index = before_movie_index
         self.after_movie_index = after_movie_index
         self.carousel_size = carousel_size
-        self.carousel_dict = carousel_dict
+
+global wv_payload_dict_shared
+#def init():
+ #   
+    # wv_payload_dict_shared = {}        
